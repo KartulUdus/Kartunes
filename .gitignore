@@ -1,0 +1,161 @@
+# ============================
+# macOS
+# ============================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# ============================
+# VSCode / Cursor / Idea
+# ============================
+.vscode/
+.idea/
+.cursor/
+
+# ============================
+# Xcode / Swift / iOS
+# ============================
+build/
+DerivedData/
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+# Project user data (do not commit)
+xcuserdata/
+*.xcuserstate
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Package.resolved
+
+# iOS Device support files
+DeviceSupport/
+
+# Xcode Logs
+*.xccheckout
+*.xcscmblueprint
+*.xcactivitylog
+
+# ============================
+# Code Signing
+# ============================
+*.cer
+*.mobileprovision
+*.p12
+
+# ============================
+# Bundler / Fastlane (if used)
+# ============================
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/README.md
+
+# ============================
+# CocoaPods (optional)
+# ============================
+Pods/
+Podfile.lock
+
+# ============================
+# Carthage (optional)
+# ============================
+Carthage/
+Carthage/Build/
+
+# ============================
+# Core Data
+# ============================
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.momd/
+*.momt/
+*.mom/
+*.map
+*.plist~  # Auto-generated transient plists
+
+# ============================
+# SwiftLint / SwiftFormat
+# ============================
+.swiftlint.tmp
+.swiftformat.tmp
+
+# ============================
+# Build Artifacts
+# ============================
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.app
+*.framework
+*.xcarchive
+
+# ============================
+# Generated API / OpenAPI Code (optional)
+# If you generate Jellyfin API clients, ignore output here unless committing them.
+# ============================
+Generated/
+openapi-generated/
+
+# ============================
+# Secrets
+# ============================
+Secrets.swift
+Secrets.xcconfig
+.env
+*.env
+
+# ============================
+# Temporary files
+# ============================
+*.orig
+*.rej
+*.tmp
+*.swp
+*.swo
+
+# ============================
+# SPM Artifacts (Xcode 15+)
+# ============================
+.swiftpm/PackageCache/
+Sources/**/.build/
+
+# ============================
+# Swift Playground leftovers
+# ============================
+timeline.xctimeline
+playground.xcworkspace
+
+# ============================
+# Web / Node.js / React
+# ============================
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+Web/node_modules/
+Web/dist/
+Web/dist-ssr/
+*.local
+
+# Editor directories and files (Web)
+Web/.vscode/*
+!Web/.vscode/extensions.json
+Web/.idea
+Web/*.suo
+Web/*.ntvs*
+Web/*.njsproj
+Web/*.sln
+Web/*.sw?

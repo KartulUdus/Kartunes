@@ -1,0 +1,1421 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		03CAF8F6CAE04BCC83623E8B /* MediaServerPlaybackRepository+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09937BFF984942D2BD6E59FF /* MediaServerPlaybackRepository+Errors.swift */; };
+		0FE5CA8482C3476A8CF5E499 /* MediaServerPreferencesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37CDE60B0D646E485FEB05A /* MediaServerPreferencesRepository.swift */; };
+		35259D3E0AF94B70A5780D65 /* MediaServerPlaybackRepository+Prefetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98A06146273B4D42A09A286F /* MediaServerPlaybackRepository+Prefetch.swift */; };
+		4AB501163AF7456ABF0594D2 /* MediaServerAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 680293E587A7452FB7DB6C8F /* MediaServerAuthRepository.swift */; };
+		5CCB0FA8C6514D3AB9983100 /* MediaServerPlaybackRepository+Enhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D69DFAC86E41D9A6EE1E21 /* MediaServerPlaybackRepository+Enhancements.swift */; };
+		5E97509FD6E84F8D9F288C40 /* MediaServerPlaybackRepository+Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD652A39BF524347BE94CEF9 /* MediaServerPlaybackRepository+Engine.swift */; };
+		6528C8A72EDB7F2200A71C01 /* PlaybackRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8792EDB7F2200A71C01 /* PlaybackRepository.swift */; };
+		6528C8A82EDB7F2200A71C01 /* AuthenticatedAssetResourceLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C85B2EDB7F2200A71C01 /* AuthenticatedAssetResourceLoader.swift */; };
+		6528C8A92EDB7F2200A71C01 /* AuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8772EDB7F2200A71C01 /* AuthRepository.swift */; };
+		6528C8AB2EDB7F2200A71C01 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8992EDB7F2200A71C01 /* SettingsView.swift */; };
+		6528C8AC2EDB7F2200A71C01 /* ArtistSortOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C89D2EDB7F2200A71C01 /* ArtistSortOption.swift */; };
+		6528C8AD2EDB7F2200A71C01 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8832EDB7F2200A71C01 /* LoginView.swift */; };
+		6528C8AE2EDB7F2200A71C01 /* ShuffleMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8742EDB7F2200A71C01 /* ShuffleMode.swift */; };
+		6528C8AF2EDB7F2200A71C01 /* SongsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C88E2EDB7F2200A71C01 /* SongsView.swift */; };
+		6528C8B12EDB7F2200A71C01 /* InstantMixKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C86E2EDB7F2200A71C01 /* InstantMixKind.swift */; };
+		6528C8B22EDB7F2200A71C01 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8A12EDB7F2200A71C01 /* Extensions.swift */; };
+		6528C8B32EDB7F2200A71C01 /* Artist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C86D2EDB7F2200A71C01 /* Artist.swift */; };
+		6528C8B42EDB7F2200A71C01 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8952EDB7F2200A71C01 /* RootView.swift */; };
+		6528C8B52EDB7F2200A71C01 /* ToggleLikeTrackUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8802EDB7F2200A71C01 /* ToggleLikeTrackUseCase.swift */; };
+		6528C8B62EDB7F2200A71C01 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8582EDB7F2200A71C01 /* AppCoordinator.swift */; };
+		6528C8B72EDB7F2200A71C01 /* ShuffleByArtistUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C87F2EDB7F2200A71C01 /* ShuffleByArtistUseCase.swift */; };
+		6528C8B82EDB7F2200A71C01 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8972EDB7F2200A71C01 /* SearchView.swift */; };
+		6528C8B92EDB7F2200A71C01 /* FetchLibraryOverviewUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C87C2EDB7F2200A71C01 /* FetchLibraryOverviewUseCase.swift */; };
+		6528C8BB2EDB7F2200A71C01 /* SortingMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C89E2EDB7F2200A71C01 /* SortingMenu.swift */; };
+		6528C8BC2EDB7F2200A71C01 /* SearchResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8722EDB7F2200A71C01 /* SearchResults.swift */; };
+		6528C8BD2EDB7F2200A71C01 /* UpNextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8922EDB7F2200A71C01 /* UpNextView.swift */; };
+		6528C8BE2EDB7F2200A71C01 /* AlbumDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8882EDB7F2200A71C01 /* AlbumDetailView.swift */; };
+		6528C8C02EDB7F2200A71C01 /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8712EDB7F2200A71C01 /* Playlist.swift */; };
+		6528C8C12EDB7F2200A71C01 /* TrackSortOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C89F2EDB7F2200A71C01 /* TrackSortOption.swift */; };
+		6528C8C22EDB7F2200A71C01 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8862EDB7F2200A71C01 /* HomeView.swift */; };
+		6528C8C32EDB7F2200A71C01 /* SearchLibraryUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C87E2EDB7F2200A71C01 /* SearchLibraryUseCase.swift */; };
+		6528C8C42EDB7F2200A71C01 /* ArtistsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C88A2EDB7F2200A71C01 /* ArtistsView.swift */; };
+		6528C8C52EDB7F2200A71C01 /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8902EDB7F2200A71C01 /* NowPlayingView.swift */; };
+		6528C8C62EDB7F2200A71C01 /* CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8662EDB7F2200A71C01 /* CoreDataHelpers.swift */; };
+		6528C8C72EDB7F2200A71C01 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C85C2EDB7F2200A71C01 /* HTTPClient.swift */; };
+		6528C8C82EDB7F2200A71C01 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C88C2EDB7F2200A71C01 /* LibraryView.swift */; };
+		6528C8C92EDB7F2200A71C01 /* AlbumsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8892EDB7F2200A71C01 /* AlbumsView.swift */; };
+		6528C8CA2EDB7F2200A71C01 /* AlbumSortOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C89C2EDB7F2200A71C01 /* AlbumSortOption.swift */; };
+		6528C8CB2EDB7F2200A71C01 /* GenerateInstantMixUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C87D2EDB7F2200A71C01 /* GenerateInstantMixUseCase.swift */; };
+		6528C8CC2EDB7F2200A71C01 /* KartunesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8592EDB7F2200A71C01 /* KartunesApp.swift */; };
+		6528C8CD2EDB7F2200A71C01 /* PlaybackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8912EDB7F2200A71C01 /* PlaybackViewModel.swift */; };
+		6528C8CF2EDB7F2200A71C01 /* UmbrellaGenres.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8A22EDB7F2200A71C01 /* UmbrellaGenres.swift */; };
+		6528C8D02EDB7F2200A71C01 /* PlaybackContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C86F2EDB7F2200A71C01 /* PlaybackContext.swift */; };
+		6528C8D12EDB7F2200A71C01 /* PlaybackQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8702EDB7F2200A71C01 /* PlaybackQueue.swift */; };
+		6528C8D22EDB7F2200A71C01 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8672EDB7F2200A71C01 /* CoreDataStack.swift */; };
+		6528C8D32EDB7F2200A71C01 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8752EDB7F2200A71C01 /* Track.swift */; };
+		6528C8D42EDB7F2200A71C01 /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8942EDB7F2200A71C01 /* MiniPlayerView.swift */; };
+		6528C8D52EDB7F2200A71C01 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8732EDB7F2200A71C01 /* Server.swift */; };
+		6528C8D62EDB7F2200A71C01 /* LibraryMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C88B2EDB7F2200A71C01 /* LibraryMenuView.swift */; };
+		6528C8D82EDB7F2200A71C01 /* PreferencesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C87A2EDB7F2200A71C01 /* PreferencesRepository.swift */; };
+		6528C8D92EDB7F2200A71C01 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C86C2EDB7F2200A71C01 /* Album.swift */; };
+		6528C8DA2EDB7F2200A71C01 /* PlaylistsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C88D2EDB7F2200A71C01 /* PlaylistsView.swift */; };
+		6528C8DB2EDB7F2200A71C01 /* CoreDataExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8652EDB7F2200A71C01 /* CoreDataExtensions.swift */; };
+		6528C8DD2EDB7F2200A71C01 /* LibraryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8782EDB7F2200A71C01 /* LibraryRepository.swift */; };
+		6528C8DF2EDB944600A71C01 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8DE2EDB944600A71C01 /* AppTheme.swift */; };
+		6528C8E22EDB9A7E00A71C01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6528C8E12EDB9A7E00A71C01 /* Assets.xcassets */; };
+		6528C8E52EDC4F5E00A71C01 /* NowPlayingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8E42EDC4F5E00A71C01 /* NowPlayingManager.swift */; };
+		6528C90A2EDC5F4000A71C01 /* Kartunes Watch App Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 6528C8EA2EDC5F3F00A71C01 /* Kartunes Watch App Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6528C91C2EDC621B00A71C01 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C91A2EDC621B00A71C01 /* WatchConnectivityService.swift */; };
+		6528C9312EDC693800A71C01 /* WatchMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C9302EDC693800A71C01 /* WatchMessage.swift */; };
+		6528C9322EDC693800A71C01 /* WatchMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C9302EDC693800A71C01 /* WatchMessage.swift */; };
+		6528C9342EDC69EF00A71C01 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6528C92E2EDC66B800A71C01 /* WatchConnectivity.framework */; platformFilter = ios; };
+		658D4FBA2ED645EB0012D19C /* KartunesDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 658D4FB82ED645EB0012D19C /* KartunesDataModel.xcdatamodeld */; };
+		659290A12EE06CB1006E1285 /* MediaServerLibraryRepository+Search.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6592909E2EE06CB1006E1285 /* MediaServerLibraryRepository+Search.swift */; };
+		659290A22EE06CB1006E1285 /* MediaServerLibraryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6592909A2EE06CB1006E1285 /* MediaServerLibraryRepository.swift */; };
+		659290A32EE06CB1006E1285 /* MediaServerLibraryRepository+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6592909F2EE06CB1006E1285 /* MediaServerLibraryRepository+Sync.swift */; };
+		659290A42EE06CB1006E1285 /* MediaServerLibraryRepository+Recents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6592909D2EE06CB1006E1285 /* MediaServerLibraryRepository+Recents.swift */; };
+		659290A52EE06CB1006E1285 /* MediaServerLibraryRepository+Playlists.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6592909C2EE06CB1006E1285 /* MediaServerLibraryRepository+Playlists.swift */; };
+		659290A62EE06CB1006E1285 /* MediaServerLibraryRepository+Browsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6592909B2EE06CB1006E1285 /* MediaServerLibraryRepository+Browsing.swift */; };
+		659290E32EE0709E006E1285 /* PlaylistMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659290E02EE0709E006E1285 /* PlaylistMapping.swift */; };
+		659290E42EE0709E006E1285 /* TrackMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659290E12EE0709E006E1285 /* TrackMapping.swift */; };
+		659290E52EE0709E006E1285 /* ArtistMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659290DF2EE0709E006E1285 /* ArtistMapping.swift */; };
+		659290E62EE0709E006E1285 /* AlbumMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659290DE2EE0709E006E1285 /* AlbumMapping.swift */; };
+		659292062EE086BF006E1285 /* DefaultJellyfinAPIClient+Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659291FB2EE086BF006E1285 /* DefaultJellyfinAPIClient+Auth.swift */; };
+		659292072EE086BF006E1285 /* DefaultJellyfinAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659291FA2EE086BF006E1285 /* DefaultJellyfinAPIClient.swift */; };
+		659292082EE086BF006E1285 /* DefaultJellyfinAPIClient+InstantMix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659291FD2EE086BF006E1285 /* DefaultJellyfinAPIClient+InstantMix.swift */; };
+		659292092EE086BF006E1285 /* DefaultJellyfinAPIClient+Reporting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292002EE086BF006E1285 /* DefaultJellyfinAPIClient+Reporting.swift */; };
+		6592920A2EE086BF006E1285 /* DefaultJellyfinAPIClient+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659291FC2EE086BF006E1285 /* DefaultJellyfinAPIClient+Helpers.swift */; };
+		6592920B2EE086BF006E1285 /* DefaultJellyfinAPIClient+Playlists.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659291FF2EE086BF006E1285 /* DefaultJellyfinAPIClient+Playlists.swift */; };
+		6592920C2EE086BF006E1285 /* DefaultJellyfinAPIClient+Streaming.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292012EE086BF006E1285 /* DefaultJellyfinAPIClient+Streaming.swift */; };
+		6592920E2EE086BF006E1285 /* JellyfinAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292022EE086BF006E1285 /* JellyfinAPIClient.swift */; };
+		6592920F2EE086BF006E1285 /* JellyfinPlaybackReportingDTOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292042EE086BF006E1285 /* JellyfinPlaybackReportingDTOs.swift */; };
+		659292102EE086BF006E1285 /* JellyfinDTOs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292032EE086BF006E1285 /* JellyfinDTOs.swift */; };
+		6592921A2EE08A0F006E1285 /* DefaultEmbyAPIClient+Playlists.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292152EE08A0F006E1285 /* DefaultEmbyAPIClient+Playlists.swift */; };
+		6592921B2EE08A0F006E1285 /* DefaultEmbyAPIClient+Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292142EE08A0F006E1285 /* DefaultEmbyAPIClient+Library.swift */; };
+		6592921C2EE08A0F006E1285 /* DefaultEmbyAPIClient+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292132EE08A0F006E1285 /* DefaultEmbyAPIClient+Helpers.swift */; };
+		6592921D2EE08A0F006E1285 /* DefaultEmbyAPIClient+Reporting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292162EE08A0F006E1285 /* DefaultEmbyAPIClient+Reporting.swift */; };
+		6592921E2EE08A0F006E1285 /* DefaultEmbyAPIClient+Streaming.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292172EE08A0F006E1285 /* DefaultEmbyAPIClient+Streaming.swift */; };
+		6592921F2EE08A0F006E1285 /* DefaultEmbyAPIClient+Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292122EE08A0F006E1285 /* DefaultEmbyAPIClient+Auth.swift */; };
+		659292202EE08A0F006E1285 /* DefaultEmbyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292112EE08A0F006E1285 /* DefaultEmbyAPIClient.swift */; };
+		659292212EE08A0F006E1285 /* EmbyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292182EE08A0F006E1285 /* EmbyAPIClient.swift */; };
+		659292252EE1925F006E1285 /* DefaultJellyfinAPIClient+UserLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292242EE1925F006E1285 /* DefaultJellyfinAPIClient+UserLibrary.swift */; };
+		659292262EE1925F006E1285 /* DefaultJellyfinAPIClient+LibraryBrowse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292222EE1925F006E1285 /* DefaultJellyfinAPIClient+LibraryBrowse.swift */; };
+		659292272EE1925F006E1285 /* DefaultJellyfinAPIClient+Tracks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292232EE1925F006E1285 /* DefaultJellyfinAPIClient+Tracks.swift */; };
+		6592922C2EE1926C006E1285 /* DefaultEmbyAPIClient+Tracks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6592922A2EE1926C006E1285 /* DefaultEmbyAPIClient+Tracks.swift */; };
+		6592922D2EE1926C006E1285 /* DefaultEmbyAPIClient+LibraryBrowse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292292EE1926C006E1285 /* DefaultEmbyAPIClient+LibraryBrowse.swift */; };
+		6592922E2EE1926C006E1285 /* DefaultEmbyAPIClient+InstantMix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292282EE1926C006E1285 /* DefaultEmbyAPIClient+InstantMix.swift */; };
+		6592922F2EE1926C006E1285 /* DefaultEmbyAPIClient+UserLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6592922B2EE1926C006E1285 /* DefaultEmbyAPIClient+UserLibrary.swift */; };
+		659292392EE1A685006E1285 /* MediaServerLibraryImporter+Albums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292322EE1A685006E1285 /* MediaServerLibraryImporter+Albums.swift */; };
+		6592923A2EE1A685006E1285 /* MediaServerLibraryImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292312EE1A685006E1285 /* MediaServerLibraryImporter.swift */; };
+		6592923B2EE1A685006E1285 /* MediaServerLibraryImporter+Tracks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292362EE1A685006E1285 /* MediaServerLibraryImporter+Tracks.swift */; };
+		6592923C2EE1A685006E1285 /* MediaServerLibraryImporter+Genres.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292352EE1A685006E1285 /* MediaServerLibraryImporter+Genres.swift */; };
+		6592923D2EE1A685006E1285 /* MediaServerLibraryImporter+Artists.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292332EE1A685006E1285 /* MediaServerLibraryImporter+Artists.swift */; };
+		6592923E2EE1A685006E1285 /* MediaServerLibraryImporter+Cleanup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292342EE1A685006E1285 /* MediaServerLibraryImporter+Cleanup.swift */; };
+		6592923F2EE1A685006E1285 /* MediaServerPlaylistSyncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292372EE1A685006E1285 /* MediaServerPlaylistSyncer.swift */; };
+		659292402EE1A685006E1285 /* MediaServerLibraryFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292302EE1A685006E1285 /* MediaServerLibraryFetcher.swift */; };
+		659292412EE1A685006E1285 /* MediaServerSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292382EE1A685006E1285 /* MediaServerSyncManager.swift */; };
+		659292432EE1B25C006E1285 /* OSLogLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292422EE1B25C006E1285 /* OSLogLogger.swift */; };
+		65C2B3A72EDDB6F100034D94 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6528C8E12EDB9A7E00A71C01 /* Assets.xcassets */; };
+		65C2B3AE2EDDD36800034D94 /* WatchPlaybackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3AC2EDDD36800034D94 /* WatchPlaybackViewModel.swift */; };
+		65C2B3AF2EDDD36800034D94 /* AlbumArtImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3A82EDDD36800034D94 /* AlbumArtImageLoader.swift */; };
+		65C2B3B02EDDD36800034D94 /* WatchPlaybackSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3AB2EDDD36800034D94 /* WatchPlaybackSession.swift */; };
+		65C2B3B12EDDD36800034D94 /* KartunesWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3A92EDDD36800034D94 /* KartunesWatchApp.swift */; };
+		65C2B3B22EDDD36800034D94 /* WatchNowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3AA2EDDD36800034D94 /* WatchNowPlayingView.swift */; };
+		65C2B3C92EDE4C0600034D94 /* AddToPlaylistSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3C72EDE4C0600034D94 /* AddToPlaylistSheet.swift */; };
+		65C2B3CA2EDE4C0600034D94 /* CreatePlaylistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3C82EDE4C0600034D94 /* CreatePlaylistView.swift */; };
+		65C2B3CD2EDEF63700034D94 /* GenreDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3CB2EDEF63700034D94 /* GenreDetailView.swift */; };
+		65C2B3CE2EDEF63700034D94 /* GenresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3CC2EDEF63700034D94 /* GenresView.swift */; };
+		65C2B3D02EDF109A00034D94 /* LikedPlaylistManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3CF2EDF109A00034D94 /* LikedPlaylistManager.swift */; };
+		65C2B3D42EDF7E0100034D94 /* MediaServerAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3D22EDF7E0100034D94 /* MediaServerAPIClient.swift */; };
+		65C2B3D62EDF7E0100034D94 /* MediaServerAPIClientFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3D32EDF7E0100034D94 /* MediaServerAPIClientFactory.swift */; };
+		65C2B3D82EDF7E1700034D94 /* MediaServerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3D72EDF7E1700034D94 /* MediaServerType.swift */; };
+		65C2B3DA2EDF9FA600034D94 /* ServerDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C2B3D92EDF9FA600034D94 /* ServerDetectionService.swift */; };
+		804819C862304E60B06F29D4 /* MediaServerPlaybackRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDE04A9FBA4F729B324B98 /* MediaServerPlaybackRepository.swift */; };
+		8BF7A04957474722A609C001 /* DTOImageTagHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD70E8A939B498BA7A9BB5B /* DTOImageTagHelpers.swift */; };
+		90BB4CBD49B04CAFB32467A0 /* MediaServerPlaybackRepository+Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9299255AC1246A7AC48368D /* MediaServerPlaybackRepository+Queue.swift */; };
+		CE5E917D03524F70BDD9BC11 /* MediaServerPlaybackRepository+Controls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F26178CEF76F4BE6B9D1C05F /* MediaServerPlaybackRepository+Controls.swift */; };
+		D9BC069FF4D94B7EB9C4A002 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB8133EBF5442BB7235966 /* Logger.swift */; };
+		E89D5AC408464EF5BAC60717 /* MediaServerPlaybackRepository+Reporting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93C141B3DE6F490CB9EE304F /* MediaServerPlaybackRepository+Reporting.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6528C9082EDC5F4000A71C01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 658D4F282ED63F620012D19C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6528C8E92EDC5F3F00A71C01;
+			remoteInfo = "Kartunes Watch App Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6528C90E2EDC5F4000A71C01 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				6528C90A2EDC5F4000A71C01 /* Kartunes Watch App Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		09937BFF984942D2BD6E59FF /* MediaServerPlaybackRepository+Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerPlaybackRepository+Errors.swift"; sourceTree = "<group>"; };
+		24DB8133EBF5442BB7235966 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		5BD70E8A939B498BA7A9BB5B /* DTOImageTagHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DTOImageTagHelpers.swift; sourceTree = "<group>"; };
+		6528C8582EDB7F2200A71C01 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		6528C8592EDB7F2200A71C01 /* KartunesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KartunesApp.swift; sourceTree = "<group>"; };
+		6528C85B2EDB7F2200A71C01 /* AuthenticatedAssetResourceLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedAssetResourceLoader.swift; sourceTree = "<group>"; };
+		6528C85C2EDB7F2200A71C01 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
+		6528C8652EDB7F2200A71C01 /* CoreDataExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataExtensions.swift; sourceTree = "<group>"; };
+		6528C8662EDB7F2200A71C01 /* CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataHelpers.swift; sourceTree = "<group>"; };
+		6528C8672EDB7F2200A71C01 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		6528C86C2EDB7F2200A71C01 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
+		6528C86D2EDB7F2200A71C01 /* Artist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Artist.swift; sourceTree = "<group>"; };
+		6528C86E2EDB7F2200A71C01 /* InstantMixKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstantMixKind.swift; sourceTree = "<group>"; };
+		6528C86F2EDB7F2200A71C01 /* PlaybackContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackContext.swift; sourceTree = "<group>"; };
+		6528C8702EDB7F2200A71C01 /* PlaybackQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackQueue.swift; sourceTree = "<group>"; };
+		6528C8712EDB7F2200A71C01 /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
+		6528C8722EDB7F2200A71C01 /* SearchResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResults.swift; sourceTree = "<group>"; };
+		6528C8732EDB7F2200A71C01 /* Server.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
+		6528C8742EDB7F2200A71C01 /* ShuffleMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuffleMode.swift; sourceTree = "<group>"; };
+		6528C8752EDB7F2200A71C01 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
+		6528C8772EDB7F2200A71C01 /* AuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRepository.swift; sourceTree = "<group>"; };
+		6528C8782EDB7F2200A71C01 /* LibraryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryRepository.swift; sourceTree = "<group>"; };
+		6528C8792EDB7F2200A71C01 /* PlaybackRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackRepository.swift; sourceTree = "<group>"; };
+		6528C87A2EDB7F2200A71C01 /* PreferencesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesRepository.swift; sourceTree = "<group>"; };
+		6528C87C2EDB7F2200A71C01 /* FetchLibraryOverviewUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchLibraryOverviewUseCase.swift; sourceTree = "<group>"; };
+		6528C87D2EDB7F2200A71C01 /* GenerateInstantMixUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateInstantMixUseCase.swift; sourceTree = "<group>"; };
+		6528C87E2EDB7F2200A71C01 /* SearchLibraryUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchLibraryUseCase.swift; sourceTree = "<group>"; };
+		6528C87F2EDB7F2200A71C01 /* ShuffleByArtistUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuffleByArtistUseCase.swift; sourceTree = "<group>"; };
+		6528C8802EDB7F2200A71C01 /* ToggleLikeTrackUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleLikeTrackUseCase.swift; sourceTree = "<group>"; };
+		6528C8832EDB7F2200A71C01 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		6528C8862EDB7F2200A71C01 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		6528C8882EDB7F2200A71C01 /* AlbumDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDetailView.swift; sourceTree = "<group>"; };
+		6528C8892EDB7F2200A71C01 /* AlbumsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsView.swift; sourceTree = "<group>"; };
+		6528C88A2EDB7F2200A71C01 /* ArtistsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistsView.swift; sourceTree = "<group>"; };
+		6528C88B2EDB7F2200A71C01 /* LibraryMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryMenuView.swift; sourceTree = "<group>"; };
+		6528C88C2EDB7F2200A71C01 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		6528C88D2EDB7F2200A71C01 /* PlaylistsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsView.swift; sourceTree = "<group>"; };
+		6528C88E2EDB7F2200A71C01 /* SongsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongsView.swift; sourceTree = "<group>"; };
+		6528C8902EDB7F2200A71C01 /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
+		6528C8912EDB7F2200A71C01 /* PlaybackViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackViewModel.swift; sourceTree = "<group>"; };
+		6528C8922EDB7F2200A71C01 /* UpNextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpNextView.swift; sourceTree = "<group>"; };
+		6528C8942EDB7F2200A71C01 /* MiniPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerView.swift; sourceTree = "<group>"; };
+		6528C8952EDB7F2200A71C01 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		6528C8972EDB7F2200A71C01 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		6528C8992EDB7F2200A71C01 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6528C89C2EDB7F2200A71C01 /* AlbumSortOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumSortOption.swift; sourceTree = "<group>"; };
+		6528C89D2EDB7F2200A71C01 /* ArtistSortOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistSortOption.swift; sourceTree = "<group>"; };
+		6528C89E2EDB7F2200A71C01 /* SortingMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortingMenu.swift; sourceTree = "<group>"; };
+		6528C89F2EDB7F2200A71C01 /* TrackSortOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackSortOption.swift; sourceTree = "<group>"; };
+		6528C8A12EDB7F2200A71C01 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		6528C8A22EDB7F2200A71C01 /* UmbrellaGenres.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UmbrellaGenres.swift; sourceTree = "<group>"; };
+		6528C8DE2EDB944600A71C01 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		6528C8E12EDB9A7E00A71C01 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6528C8E32EDC336200A71C01 /* Kartunes-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Kartunes-Info.plist"; sourceTree = "<group>"; };
+		6528C8E42EDC4F5E00A71C01 /* NowPlayingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingManager.swift; sourceTree = "<group>"; };
+		6528C8EA2EDC5F3F00A71C01 /* Kartunes Watch App Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kartunes Watch App Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6528C91A2EDC621B00A71C01 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
+		6528C92E2EDC66B800A71C01 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
+		6528C9302EDC693800A71C01 /* WatchMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchMessage.swift; sourceTree = "<group>"; };
+		658D4F302ED63F620012D19C /* Kartunes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kartunes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		658D4FB92ED645EB0012D19C /* KartunesDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = KartunesDataModel.xcdatamodel; sourceTree = "<group>"; };
+		6592909A2EE06CB1006E1285 /* MediaServerLibraryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerLibraryRepository.swift; sourceTree = "<group>"; };
+		6592909B2EE06CB1006E1285 /* MediaServerLibraryRepository+Browsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryRepository+Browsing.swift"; sourceTree = "<group>"; };
+		6592909C2EE06CB1006E1285 /* MediaServerLibraryRepository+Playlists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryRepository+Playlists.swift"; sourceTree = "<group>"; };
+		6592909D2EE06CB1006E1285 /* MediaServerLibraryRepository+Recents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryRepository+Recents.swift"; sourceTree = "<group>"; };
+		6592909E2EE06CB1006E1285 /* MediaServerLibraryRepository+Search.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryRepository+Search.swift"; sourceTree = "<group>"; };
+		6592909F2EE06CB1006E1285 /* MediaServerLibraryRepository+Sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryRepository+Sync.swift"; sourceTree = "<group>"; };
+		659290DE2EE0709E006E1285 /* AlbumMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumMapping.swift; sourceTree = "<group>"; };
+		659290DF2EE0709E006E1285 /* ArtistMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistMapping.swift; sourceTree = "<group>"; };
+		659290E02EE0709E006E1285 /* PlaylistMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistMapping.swift; sourceTree = "<group>"; };
+		659290E12EE0709E006E1285 /* TrackMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackMapping.swift; sourceTree = "<group>"; };
+		659291FA2EE086BF006E1285 /* DefaultJellyfinAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultJellyfinAPIClient.swift; sourceTree = "<group>"; };
+		659291FB2EE086BF006E1285 /* DefaultJellyfinAPIClient+Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultJellyfinAPIClient+Auth.swift"; sourceTree = "<group>"; };
+		659291FC2EE086BF006E1285 /* DefaultJellyfinAPIClient+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultJellyfinAPIClient+Helpers.swift"; sourceTree = "<group>"; };
+		659291FD2EE086BF006E1285 /* DefaultJellyfinAPIClient+InstantMix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultJellyfinAPIClient+InstantMix.swift"; sourceTree = "<group>"; };
+		659291FF2EE086BF006E1285 /* DefaultJellyfinAPIClient+Playlists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultJellyfinAPIClient+Playlists.swift"; sourceTree = "<group>"; };
+		659292002EE086BF006E1285 /* DefaultJellyfinAPIClient+Reporting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultJellyfinAPIClient+Reporting.swift"; sourceTree = "<group>"; };
+		659292012EE086BF006E1285 /* DefaultJellyfinAPIClient+Streaming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultJellyfinAPIClient+Streaming.swift"; sourceTree = "<group>"; };
+		659292022EE086BF006E1285 /* JellyfinAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinAPIClient.swift; sourceTree = "<group>"; };
+		659292032EE086BF006E1285 /* JellyfinDTOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinDTOs.swift; sourceTree = "<group>"; };
+		659292042EE086BF006E1285 /* JellyfinPlaybackReportingDTOs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinPlaybackReportingDTOs.swift; sourceTree = "<group>"; };
+		659292112EE08A0F006E1285 /* DefaultEmbyAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultEmbyAPIClient.swift; sourceTree = "<group>"; };
+		659292122EE08A0F006E1285 /* DefaultEmbyAPIClient+Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+Auth.swift"; sourceTree = "<group>"; };
+		659292132EE08A0F006E1285 /* DefaultEmbyAPIClient+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+Helpers.swift"; sourceTree = "<group>"; };
+		659292142EE08A0F006E1285 /* DefaultEmbyAPIClient+Library.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+Library.swift"; sourceTree = "<group>"; };
+		659292152EE08A0F006E1285 /* DefaultEmbyAPIClient+Playlists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+Playlists.swift"; sourceTree = "<group>"; };
+		659292162EE08A0F006E1285 /* DefaultEmbyAPIClient+Reporting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+Reporting.swift"; sourceTree = "<group>"; };
+		659292172EE08A0F006E1285 /* DefaultEmbyAPIClient+Streaming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+Streaming.swift"; sourceTree = "<group>"; };
+		659292182EE08A0F006E1285 /* EmbyAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbyAPIClient.swift; sourceTree = "<group>"; };
+		659292222EE1925F006E1285 /* DefaultJellyfinAPIClient+LibraryBrowse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultJellyfinAPIClient+LibraryBrowse.swift"; sourceTree = "<group>"; };
+		659292232EE1925F006E1285 /* DefaultJellyfinAPIClient+Tracks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultJellyfinAPIClient+Tracks.swift"; sourceTree = "<group>"; };
+		659292242EE1925F006E1285 /* DefaultJellyfinAPIClient+UserLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultJellyfinAPIClient+UserLibrary.swift"; sourceTree = "<group>"; };
+		659292282EE1926C006E1285 /* DefaultEmbyAPIClient+InstantMix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+InstantMix.swift"; sourceTree = "<group>"; };
+		659292292EE1926C006E1285 /* DefaultEmbyAPIClient+LibraryBrowse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+LibraryBrowse.swift"; sourceTree = "<group>"; };
+		6592922A2EE1926C006E1285 /* DefaultEmbyAPIClient+Tracks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+Tracks.swift"; sourceTree = "<group>"; };
+		6592922B2EE1926C006E1285 /* DefaultEmbyAPIClient+UserLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DefaultEmbyAPIClient+UserLibrary.swift"; sourceTree = "<group>"; };
+		659292302EE1A685006E1285 /* MediaServerLibraryFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerLibraryFetcher.swift; sourceTree = "<group>"; };
+		659292312EE1A685006E1285 /* MediaServerLibraryImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerLibraryImporter.swift; sourceTree = "<group>"; };
+		659292322EE1A685006E1285 /* MediaServerLibraryImporter+Albums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryImporter+Albums.swift"; sourceTree = "<group>"; };
+		659292332EE1A685006E1285 /* MediaServerLibraryImporter+Artists.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryImporter+Artists.swift"; sourceTree = "<group>"; };
+		659292342EE1A685006E1285 /* MediaServerLibraryImporter+Cleanup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryImporter+Cleanup.swift"; sourceTree = "<group>"; };
+		659292352EE1A685006E1285 /* MediaServerLibraryImporter+Genres.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryImporter+Genres.swift"; sourceTree = "<group>"; };
+		659292362EE1A685006E1285 /* MediaServerLibraryImporter+Tracks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerLibraryImporter+Tracks.swift"; sourceTree = "<group>"; };
+		659292372EE1A685006E1285 /* MediaServerPlaylistSyncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerPlaylistSyncer.swift; sourceTree = "<group>"; };
+		659292382EE1A685006E1285 /* MediaServerSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerSyncManager.swift; sourceTree = "<group>"; };
+		659292422EE1B25C006E1285 /* OSLogLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogLogger.swift; sourceTree = "<group>"; };
+		65C2B3A82EDDD36800034D94 /* AlbumArtImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumArtImageLoader.swift; sourceTree = "<group>"; };
+		65C2B3A92EDDD36800034D94 /* KartunesWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KartunesWatchApp.swift; sourceTree = "<group>"; };
+		65C2B3AA2EDDD36800034D94 /* WatchNowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchNowPlayingView.swift; sourceTree = "<group>"; };
+		65C2B3AB2EDDD36800034D94 /* WatchPlaybackSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchPlaybackSession.swift; sourceTree = "<group>"; };
+		65C2B3AC2EDDD36800034D94 /* WatchPlaybackViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchPlaybackViewModel.swift; sourceTree = "<group>"; };
+		65C2B3B72EDDD7F700034D94 /* kartunes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kartunes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		65C2B3C72EDE4C0600034D94 /* AddToPlaylistSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToPlaylistSheet.swift; sourceTree = "<group>"; };
+		65C2B3C82EDE4C0600034D94 /* CreatePlaylistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePlaylistView.swift; sourceTree = "<group>"; };
+		65C2B3CB2EDEF63700034D94 /* GenreDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreDetailView.swift; sourceTree = "<group>"; };
+		65C2B3CC2EDEF63700034D94 /* GenresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenresView.swift; sourceTree = "<group>"; };
+		65C2B3CF2EDF109A00034D94 /* LikedPlaylistManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedPlaylistManager.swift; sourceTree = "<group>"; };
+		65C2B3D22EDF7E0100034D94 /* MediaServerAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerAPIClient.swift; sourceTree = "<group>"; };
+		65C2B3D32EDF7E0100034D94 /* MediaServerAPIClientFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerAPIClientFactory.swift; sourceTree = "<group>"; };
+		65C2B3D72EDF7E1700034D94 /* MediaServerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerType.swift; sourceTree = "<group>"; };
+		65C2B3D92EDF9FA600034D94 /* ServerDetectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerDetectionService.swift; sourceTree = "<group>"; };
+		680293E587A7452FB7DB6C8F /* MediaServerAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerAuthRepository.swift; sourceTree = "<group>"; };
+		8BFDE04A9FBA4F729B324B98 /* MediaServerPlaybackRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerPlaybackRepository.swift; sourceTree = "<group>"; };
+		93C141B3DE6F490CB9EE304F /* MediaServerPlaybackRepository+Reporting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerPlaybackRepository+Reporting.swift"; sourceTree = "<group>"; };
+		98A06146273B4D42A09A286F /* MediaServerPlaybackRepository+Prefetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerPlaybackRepository+Prefetch.swift"; sourceTree = "<group>"; };
+		A37CDE60B0D646E485FEB05A /* MediaServerPreferencesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerPreferencesRepository.swift; sourceTree = "<group>"; };
+		A9D69DFAC86E41D9A6EE1E21 /* MediaServerPlaybackRepository+Enhancements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerPlaybackRepository+Enhancements.swift"; sourceTree = "<group>"; };
+		B9299255AC1246A7AC48368D /* MediaServerPlaybackRepository+Queue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerPlaybackRepository+Queue.swift"; sourceTree = "<group>"; };
+		BD652A39BF524347BE94CEF9 /* MediaServerPlaybackRepository+Engine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerPlaybackRepository+Engine.swift"; sourceTree = "<group>"; };
+		F26178CEF76F4BE6B9D1C05F /* MediaServerPlaybackRepository+Controls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerPlaybackRepository+Controls.swift"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		65C2B3B82EDDD7F700034D94 /* kartunes */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = kartunes;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6528C8E72EDC5F3F00A71C01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		658D4F2D2ED63F620012D19C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6528C9342EDC69EF00A71C01 /* WatchConnectivity.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65C2B3B42EDDD7F700034D94 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0EBA78E8FBD943D2A2E52563 /* Playback */ = {
+			isa = PBXGroup;
+			children = (
+				8BFDE04A9FBA4F729B324B98 /* MediaServerPlaybackRepository.swift */,
+				BD652A39BF524347BE94CEF9 /* MediaServerPlaybackRepository+Engine.swift */,
+				B9299255AC1246A7AC48368D /* MediaServerPlaybackRepository+Queue.swift */,
+				98A06146273B4D42A09A286F /* MediaServerPlaybackRepository+Prefetch.swift */,
+				F26178CEF76F4BE6B9D1C05F /* MediaServerPlaybackRepository+Controls.swift */,
+				93C141B3DE6F490CB9EE304F /* MediaServerPlaybackRepository+Reporting.swift */,
+				09937BFF984942D2BD6E59FF /* MediaServerPlaybackRepository+Errors.swift */,
+				A9D69DFAC86E41D9A6EE1E21 /* MediaServerPlaybackRepository+Enhancements.swift */,
+			);
+			path = Playback;
+			sourceTree = "<group>";
+		};
+		2B5590BBDD0646D4882DE70C /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				6592909A2EE06CB1006E1285 /* MediaServerLibraryRepository.swift */,
+				6592909B2EE06CB1006E1285 /* MediaServerLibraryRepository+Browsing.swift */,
+				6592909C2EE06CB1006E1285 /* MediaServerLibraryRepository+Playlists.swift */,
+				6592909D2EE06CB1006E1285 /* MediaServerLibraryRepository+Recents.swift */,
+				6592909E2EE06CB1006E1285 /* MediaServerLibraryRepository+Search.swift */,
+				6592909F2EE06CB1006E1285 /* MediaServerLibraryRepository+Sync.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		6528C85A2EDB7F2200A71C01 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				6528C8582EDB7F2200A71C01 /* AppCoordinator.swift */,
+				6528C8592EDB7F2200A71C01 /* KartunesApp.swift */,
+			);
+			name = App;
+			path = ../App;
+			sourceTree = SOURCE_ROOT;
+		};
+		6528C85E2EDB7F2200A71C01 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				659292192EE08A0F006E1285 /* Emby */,
+				659292052EE086BF006E1285 /* Jellyfin */,
+				65C2B3D92EDF9FA600034D94 /* ServerDetectionService.swift */,
+				65C2B3D22EDF7E0100034D94 /* MediaServerAPIClient.swift */,
+				65C2B3D32EDF7E0100034D94 /* MediaServerAPIClientFactory.swift */,
+				6528C85B2EDB7F2200A71C01 /* AuthenticatedAssetResourceLoader.swift */,
+				6528C85C2EDB7F2200A71C01 /* HTTPClient.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+		6528C8642EDB7F2200A71C01 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				659290A02EE06CB1006E1285 /* MediaServer */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		6528C8682EDB7F2200A71C01 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				65C2B3CF2EDF109A00034D94 /* LikedPlaylistManager.swift */,
+				6528C8652EDB7F2200A71C01 /* CoreDataExtensions.swift */,
+				6528C8662EDB7F2200A71C01 /* CoreDataHelpers.swift */,
+				6528C8672EDB7F2200A71C01 /* CoreDataStack.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		6528C86A2EDB7F2200A71C01 /* Sync */ = {
+			isa = PBXGroup;
+			children = (
+				659292302EE1A685006E1285 /* MediaServerLibraryFetcher.swift */,
+				659292312EE1A685006E1285 /* MediaServerLibraryImporter.swift */,
+				659292322EE1A685006E1285 /* MediaServerLibraryImporter+Albums.swift */,
+				659292332EE1A685006E1285 /* MediaServerLibraryImporter+Artists.swift */,
+				659292342EE1A685006E1285 /* MediaServerLibraryImporter+Cleanup.swift */,
+				659292352EE1A685006E1285 /* MediaServerLibraryImporter+Genres.swift */,
+				659292362EE1A685006E1285 /* MediaServerLibraryImporter+Tracks.swift */,
+				659292372EE1A685006E1285 /* MediaServerPlaylistSyncer.swift */,
+				659292382EE1A685006E1285 /* MediaServerSyncManager.swift */,
+			);
+			path = Sync;
+			sourceTree = "<group>";
+		};
+		6528C86B2EDB7F2200A71C01 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				659290E22EE0709E006E1285 /* Mapping */,
+				6528C85E2EDB7F2200A71C01 /* Networking */,
+				6528C8642EDB7F2200A71C01 /* Repositories */,
+				6528C8682EDB7F2200A71C01 /* Storage */,
+				6528C86A2EDB7F2200A71C01 /* Sync */,
+			);
+			name = Data;
+			path = ../Data;
+			sourceTree = SOURCE_ROOT;
+		};
+		6528C8762EDB7F2200A71C01 /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				65C2B3D72EDF7E1700034D94 /* MediaServerType.swift */,
+				6528C86C2EDB7F2200A71C01 /* Album.swift */,
+				6528C86D2EDB7F2200A71C01 /* Artist.swift */,
+				6528C86E2EDB7F2200A71C01 /* InstantMixKind.swift */,
+				6528C86F2EDB7F2200A71C01 /* PlaybackContext.swift */,
+				6528C8702EDB7F2200A71C01 /* PlaybackQueue.swift */,
+				6528C8712EDB7F2200A71C01 /* Playlist.swift */,
+				6528C8722EDB7F2200A71C01 /* SearchResults.swift */,
+				6528C8732EDB7F2200A71C01 /* Server.swift */,
+				6528C8742EDB7F2200A71C01 /* ShuffleMode.swift */,
+				6528C8752EDB7F2200A71C01 /* Track.swift */,
+			);
+			path = Entities;
+			sourceTree = "<group>";
+		};
+		6528C87B2EDB7F2200A71C01 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				6528C8772EDB7F2200A71C01 /* AuthRepository.swift */,
+				6528C8782EDB7F2200A71C01 /* LibraryRepository.swift */,
+				6528C8792EDB7F2200A71C01 /* PlaybackRepository.swift */,
+				6528C87A2EDB7F2200A71C01 /* PreferencesRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		6528C8812EDB7F2200A71C01 /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+				6528C87C2EDB7F2200A71C01 /* FetchLibraryOverviewUseCase.swift */,
+				6528C87D2EDB7F2200A71C01 /* GenerateInstantMixUseCase.swift */,
+				6528C87E2EDB7F2200A71C01 /* SearchLibraryUseCase.swift */,
+				6528C87F2EDB7F2200A71C01 /* ShuffleByArtistUseCase.swift */,
+				6528C8802EDB7F2200A71C01 /* ToggleLikeTrackUseCase.swift */,
+			);
+			path = UseCases;
+			sourceTree = "<group>";
+		};
+		6528C8822EDB7F2200A71C01 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				6528C8762EDB7F2200A71C01 /* Entities */,
+				6528C87B2EDB7F2200A71C01 /* Repositories */,
+				6528C8812EDB7F2200A71C01 /* UseCases */,
+			);
+			name = Domain;
+			path = ../Domain;
+			sourceTree = SOURCE_ROOT;
+		};
+		6528C8842EDB7F2200A71C01 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				6528C8832EDB7F2200A71C01 /* LoginView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		6528C8852EDB7F2200A71C01 /* CarPlay */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = CarPlay;
+			sourceTree = "<group>";
+		};
+		6528C8872EDB7F2200A71C01 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				6528C8862EDB7F2200A71C01 /* HomeView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		6528C88F2EDB7F2200A71C01 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				65C2B3CB2EDEF63700034D94 /* GenreDetailView.swift */,
+				65C2B3CC2EDEF63700034D94 /* GenresView.swift */,
+				65C2B3C72EDE4C0600034D94 /* AddToPlaylistSheet.swift */,
+				65C2B3C82EDE4C0600034D94 /* CreatePlaylistView.swift */,
+				6528C8882EDB7F2200A71C01 /* AlbumDetailView.swift */,
+				6528C8892EDB7F2200A71C01 /* AlbumsView.swift */,
+				6528C88A2EDB7F2200A71C01 /* ArtistsView.swift */,
+				6528C88B2EDB7F2200A71C01 /* LibraryMenuView.swift */,
+				6528C88C2EDB7F2200A71C01 /* LibraryView.swift */,
+				6528C88D2EDB7F2200A71C01 /* PlaylistsView.swift */,
+				6528C88E2EDB7F2200A71C01 /* SongsView.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		6528C8932EDB7F2200A71C01 /* Playback */ = {
+			isa = PBXGroup;
+			children = (
+				6528C8E42EDC4F5E00A71C01 /* NowPlayingManager.swift */,
+				6528C8902EDB7F2200A71C01 /* NowPlayingView.swift */,
+				6528C8912EDB7F2200A71C01 /* PlaybackViewModel.swift */,
+				6528C8922EDB7F2200A71C01 /* UpNextView.swift */,
+			);
+			path = Playback;
+			sourceTree = "<group>";
+		};
+		6528C8962EDB7F2200A71C01 /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				6528C8942EDB7F2200A71C01 /* MiniPlayerView.swift */,
+				6528C8952EDB7F2200A71C01 /* RootView.swift */,
+			);
+			path = Root;
+			sourceTree = "<group>";
+		};
+		6528C8982EDB7F2200A71C01 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				6528C8972EDB7F2200A71C01 /* SearchView.swift */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
+		6528C89A2EDB7F2200A71C01 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				6528C8992EDB7F2200A71C01 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		6528C89B2EDB7F2200A71C01 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				6528C91B2EDC621B00A71C01 /* Watch */,
+				6528C8842EDB7F2200A71C01 /* Auth */,
+				6528C8852EDB7F2200A71C01 /* CarPlay */,
+				6528C8872EDB7F2200A71C01 /* Home */,
+				6528C88F2EDB7F2200A71C01 /* Library */,
+				6528C8932EDB7F2200A71C01 /* Playback */,
+				6528C8962EDB7F2200A71C01 /* Root */,
+				6528C8982EDB7F2200A71C01 /* Search */,
+				6528C89A2EDB7F2200A71C01 /* Settings */,
+			);
+			name = Features;
+			path = ../Features;
+			sourceTree = SOURCE_ROOT;
+		};
+		6528C8A02EDB7F2200A71C01 /* UIComponents */ = {
+			isa = PBXGroup;
+			children = (
+				6528C89C2EDB7F2200A71C01 /* AlbumSortOption.swift */,
+				6528C89D2EDB7F2200A71C01 /* ArtistSortOption.swift */,
+				6528C89E2EDB7F2200A71C01 /* SortingMenu.swift */,
+				6528C89F2EDB7F2200A71C01 /* TrackSortOption.swift */,
+			);
+			path = UIComponents;
+			sourceTree = "<group>";
+		};
+		6528C8A32EDB7F2200A71C01 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				659292422EE1B25C006E1285 /* OSLogLogger.swift */,
+				6528C8DE2EDB944600A71C01 /* AppTheme.swift */,
+				6528C8A12EDB7F2200A71C01 /* Extensions.swift */,
+				24DB8133EBF5442BB7235966 /* Logger.swift */,
+				6528C8A22EDB7F2200A71C01 /* UmbrellaGenres.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		6528C8A42EDB7F2200A71C01 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				6528C9182EDC61D200A71C01 /* WatchConnectivity */,
+				6528C8A02EDB7F2200A71C01 /* UIComponents */,
+				6528C8A32EDB7F2200A71C01 /* Utilities */,
+			);
+			name = Shared;
+			path = ../Shared;
+			sourceTree = SOURCE_ROOT;
+		};
+		6528C9182EDC61D200A71C01 /* WatchConnectivity */ = {
+			isa = PBXGroup;
+			children = (
+				6528C9302EDC693800A71C01 /* WatchMessage.swift */,
+			);
+			path = WatchConnectivity;
+			sourceTree = "<group>";
+		};
+		6528C91B2EDC621B00A71C01 /* Watch */ = {
+			isa = PBXGroup;
+			children = (
+				6528C91A2EDC621B00A71C01 /* WatchConnectivityService.swift */,
+			);
+			path = Watch;
+			sourceTree = "<group>";
+		};
+		6528C92D2EDC66B800A71C01 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6528C92E2EDC66B800A71C01 /* WatchConnectivity.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		658D4F272ED63F620012D19C = {
+			isa = PBXGroup;
+			children = (
+				6528C8E32EDC336200A71C01 /* Kartunes-Info.plist */,
+				6528C8E12EDB9A7E00A71C01 /* Assets.xcassets */,
+				6528C85A2EDB7F2200A71C01 /* App */,
+				6528C86B2EDB7F2200A71C01 /* Data */,
+				6528C8822EDB7F2200A71C01 /* Domain */,
+				6528C89B2EDB7F2200A71C01 /* Features */,
+				6528C8A42EDB7F2200A71C01 /* Shared */,
+				658D4FB62ED645690012D19C /* CoreData */,
+				65C2B3B82EDDD7F700034D94 /* kartunes */,
+				6528C92D2EDC66B800A71C01 /* Frameworks */,
+				658D4F312ED63F620012D19C /* Products */,
+				65C2B3AD2EDDD36800034D94 /* WatchApp */,
+			);
+			sourceTree = "<group>";
+		};
+		658D4F312ED63F620012D19C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				658D4F302ED63F620012D19C /* Kartunes.app */,
+				6528C8EA2EDC5F3F00A71C01 /* Kartunes Watch App Watch App.app */,
+				65C2B3B72EDDD7F700034D94 /* kartunes.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		658D4FB62ED645690012D19C /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				658D4FB82ED645EB0012D19C /* KartunesDataModel.xcdatamodeld */,
+			);
+			name = CoreData;
+			path = ../CoreData;
+			sourceTree = SOURCE_ROOT;
+		};
+		659290A02EE06CB1006E1285 /* MediaServer */ = {
+			isa = PBXGroup;
+			children = (
+				2B5590BBDD0646D4882DE70C /* Library */,
+				0EBA78E8FBD943D2A2E52563 /* Playback */,
+				680293E587A7452FB7DB6C8F /* MediaServerAuthRepository.swift */,
+				A37CDE60B0D646E485FEB05A /* MediaServerPreferencesRepository.swift */,
+			);
+			path = MediaServer;
+			sourceTree = "<group>";
+		};
+		659290E22EE0709E006E1285 /* Mapping */ = {
+			isa = PBXGroup;
+			children = (
+				659290DE2EE0709E006E1285 /* AlbumMapping.swift */,
+				659290DF2EE0709E006E1285 /* ArtistMapping.swift */,
+				5BD70E8A939B498BA7A9BB5B /* DTOImageTagHelpers.swift */,
+				659290E02EE0709E006E1285 /* PlaylistMapping.swift */,
+				659290E12EE0709E006E1285 /* TrackMapping.swift */,
+			);
+			path = Mapping;
+			sourceTree = "<group>";
+		};
+		659292052EE086BF006E1285 /* Jellyfin */ = {
+			isa = PBXGroup;
+			children = (
+				659292222EE1925F006E1285 /* DefaultJellyfinAPIClient+LibraryBrowse.swift */,
+				659292232EE1925F006E1285 /* DefaultJellyfinAPIClient+Tracks.swift */,
+				659292242EE1925F006E1285 /* DefaultJellyfinAPIClient+UserLibrary.swift */,
+				659291FA2EE086BF006E1285 /* DefaultJellyfinAPIClient.swift */,
+				659291FB2EE086BF006E1285 /* DefaultJellyfinAPIClient+Auth.swift */,
+				659291FC2EE086BF006E1285 /* DefaultJellyfinAPIClient+Helpers.swift */,
+				659291FD2EE086BF006E1285 /* DefaultJellyfinAPIClient+InstantMix.swift */,
+				659291FF2EE086BF006E1285 /* DefaultJellyfinAPIClient+Playlists.swift */,
+				659292002EE086BF006E1285 /* DefaultJellyfinAPIClient+Reporting.swift */,
+				659292012EE086BF006E1285 /* DefaultJellyfinAPIClient+Streaming.swift */,
+				659292022EE086BF006E1285 /* JellyfinAPIClient.swift */,
+				659292032EE086BF006E1285 /* JellyfinDTOs.swift */,
+				659292042EE086BF006E1285 /* JellyfinPlaybackReportingDTOs.swift */,
+			);
+			path = Jellyfin;
+			sourceTree = "<group>";
+		};
+		659292192EE08A0F006E1285 /* Emby */ = {
+			isa = PBXGroup;
+			children = (
+				659292282EE1926C006E1285 /* DefaultEmbyAPIClient+InstantMix.swift */,
+				659292292EE1926C006E1285 /* DefaultEmbyAPIClient+LibraryBrowse.swift */,
+				6592922A2EE1926C006E1285 /* DefaultEmbyAPIClient+Tracks.swift */,
+				6592922B2EE1926C006E1285 /* DefaultEmbyAPIClient+UserLibrary.swift */,
+				659292112EE08A0F006E1285 /* DefaultEmbyAPIClient.swift */,
+				659292122EE08A0F006E1285 /* DefaultEmbyAPIClient+Auth.swift */,
+				659292132EE08A0F006E1285 /* DefaultEmbyAPIClient+Helpers.swift */,
+				659292142EE08A0F006E1285 /* DefaultEmbyAPIClient+Library.swift */,
+				659292152EE08A0F006E1285 /* DefaultEmbyAPIClient+Playlists.swift */,
+				659292162EE08A0F006E1285 /* DefaultEmbyAPIClient+Reporting.swift */,
+				659292172EE08A0F006E1285 /* DefaultEmbyAPIClient+Streaming.swift */,
+				659292182EE08A0F006E1285 /* EmbyAPIClient.swift */,
+			);
+			path = Emby;
+			sourceTree = "<group>";
+		};
+		65C2B3AD2EDDD36800034D94 /* WatchApp */ = {
+			isa = PBXGroup;
+			children = (
+				65C2B3A82EDDD36800034D94 /* AlbumArtImageLoader.swift */,
+				65C2B3A92EDDD36800034D94 /* KartunesWatchApp.swift */,
+				65C2B3AA2EDDD36800034D94 /* WatchNowPlayingView.swift */,
+				65C2B3AB2EDDD36800034D94 /* WatchPlaybackSession.swift */,
+				65C2B3AC2EDDD36800034D94 /* WatchPlaybackViewModel.swift */,
+			);
+			name = WatchApp;
+			path = ../WatchApp;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6528C8E92EDC5F3F00A71C01 /* Kartunes Watch App Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6528C90B2EDC5F4000A71C01 /* Build configuration list for PBXNativeTarget "Kartunes Watch App Watch App" */;
+			buildPhases = (
+				6528C8E62EDC5F3F00A71C01 /* Sources */,
+				6528C8E72EDC5F3F00A71C01 /* Frameworks */,
+				6528C8E82EDC5F3F00A71C01 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Kartunes Watch App Watch App";
+			packageProductDependencies = (
+			);
+			productName = "Kartunes Watch App Watch App";
+			productReference = 6528C8EA2EDC5F3F00A71C01 /* Kartunes Watch App Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		658D4F2F2ED63F620012D19C /* Kartunes */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 658D4F562ED63F620012D19C /* Build configuration list for PBXNativeTarget "Kartunes" */;
+			buildPhases = (
+				658D4F2C2ED63F620012D19C /* Sources */,
+				658D4F2D2ED63F620012D19C /* Frameworks */,
+				658D4F2E2ED63F620012D19C /* Resources */,
+				6528C90E2EDC5F4000A71C01 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6528C9092EDC5F4000A71C01 /* PBXTargetDependency */,
+			);
+			name = Kartunes;
+			packageProductDependencies = (
+			);
+			productName = Kartunes;
+			productReference = 658D4F302ED63F620012D19C /* Kartunes.app */;
+			productType = "com.apple.product-type.application";
+		};
+		65C2B3B62EDDD7F700034D94 /* kartunes */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 65C2B3C42EDDD7F700034D94 /* Build configuration list for PBXNativeTarget "kartunes" */;
+			buildPhases = (
+				65C2B3B32EDDD7F700034D94 /* Sources */,
+				65C2B3B42EDDD7F700034D94 /* Frameworks */,
+				65C2B3B52EDDD7F700034D94 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				65C2B3B82EDDD7F700034D94 /* kartunes */,
+			);
+			name = kartunes;
+			packageProductDependencies = (
+			);
+			productName = kartunes;
+			productReference = 65C2B3B72EDDD7F700034D94 /* kartunes.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		658D4F282ED63F620012D19C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					6528C8E92EDC5F3F00A71C01 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+					658D4F2F2ED63F620012D19C = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+					65C2B3B62EDDD7F700034D94 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 658D4F2B2ED63F620012D19C /* Build configuration list for PBXProject "Kartunes" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 658D4F272ED63F620012D19C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 658D4F312ED63F620012D19C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				658D4F2F2ED63F620012D19C /* Kartunes */,
+				6528C8E92EDC5F3F00A71C01 /* Kartunes Watch App Watch App */,
+				65C2B3B62EDDD7F700034D94 /* kartunes */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6528C8E82EDC5F3F00A71C01 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65C2B3A72EDDB6F100034D94 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		658D4F2E2ED63F620012D19C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6528C8E22EDB9A7E00A71C01 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65C2B3B52EDDD7F700034D94 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6528C8E62EDC5F3F00A71C01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65C2B3AE2EDDD36800034D94 /* WatchPlaybackViewModel.swift in Sources */,
+				65C2B3AF2EDDD36800034D94 /* AlbumArtImageLoader.swift in Sources */,
+				65C2B3B02EDDD36800034D94 /* WatchPlaybackSession.swift in Sources */,
+				65C2B3B12EDDD36800034D94 /* KartunesWatchApp.swift in Sources */,
+				65C2B3B22EDDD36800034D94 /* WatchNowPlayingView.swift in Sources */,
+				6528C9312EDC693800A71C01 /* WatchMessage.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		658D4F2C2ED63F620012D19C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6528C8A72EDB7F2200A71C01 /* PlaybackRepository.swift in Sources */,
+				659292062EE086BF006E1285 /* DefaultJellyfinAPIClient+Auth.swift in Sources */,
+				659292072EE086BF006E1285 /* DefaultJellyfinAPIClient.swift in Sources */,
+				659292082EE086BF006E1285 /* DefaultJellyfinAPIClient+InstantMix.swift in Sources */,
+				659292092EE086BF006E1285 /* DefaultJellyfinAPIClient+Reporting.swift in Sources */,
+				6592920A2EE086BF006E1285 /* DefaultJellyfinAPIClient+Helpers.swift in Sources */,
+				6592920B2EE086BF006E1285 /* DefaultJellyfinAPIClient+Playlists.swift in Sources */,
+				6592920C2EE086BF006E1285 /* DefaultJellyfinAPIClient+Streaming.swift in Sources */,
+				6592920E2EE086BF006E1285 /* JellyfinAPIClient.swift in Sources */,
+				6592920F2EE086BF006E1285 /* JellyfinPlaybackReportingDTOs.swift in Sources */,
+				659292102EE086BF006E1285 /* JellyfinDTOs.swift in Sources */,
+				6528C8A82EDB7F2200A71C01 /* AuthenticatedAssetResourceLoader.swift in Sources */,
+				6528C9322EDC693800A71C01 /* WatchMessage.swift in Sources */,
+				6528C8A92EDB7F2200A71C01 /* AuthRepository.swift in Sources */,
+				65C2B3DA2EDF9FA600034D94 /* ServerDetectionService.swift in Sources */,
+				6592921A2EE08A0F006E1285 /* DefaultEmbyAPIClient+Playlists.swift in Sources */,
+				6592921B2EE08A0F006E1285 /* DefaultEmbyAPIClient+Library.swift in Sources */,
+				6592921C2EE08A0F006E1285 /* DefaultEmbyAPIClient+Helpers.swift in Sources */,
+				6592921D2EE08A0F006E1285 /* DefaultEmbyAPIClient+Reporting.swift in Sources */,
+				6592921E2EE08A0F006E1285 /* DefaultEmbyAPIClient+Streaming.swift in Sources */,
+				6592921F2EE08A0F006E1285 /* DefaultEmbyAPIClient+Auth.swift in Sources */,
+				659292202EE08A0F006E1285 /* DefaultEmbyAPIClient.swift in Sources */,
+				659292212EE08A0F006E1285 /* EmbyAPIClient.swift in Sources */,
+				6528C8AB2EDB7F2200A71C01 /* SettingsView.swift in Sources */,
+				6528C8AC2EDB7F2200A71C01 /* ArtistSortOption.swift in Sources */,
+				6528C8AD2EDB7F2200A71C01 /* LoginView.swift in Sources */,
+				6528C8AE2EDB7F2200A71C01 /* ShuffleMode.swift in Sources */,
+				6528C8AF2EDB7F2200A71C01 /* SongsView.swift in Sources */,
+				804819C862304E60B06F29D4 /* MediaServerPlaybackRepository.swift in Sources */,
+				5E97509FD6E84F8D9F288C40 /* MediaServerPlaybackRepository+Engine.swift in Sources */,
+				90BB4CBD49B04CAFB32467A0 /* MediaServerPlaybackRepository+Queue.swift in Sources */,
+				35259D3E0AF94B70A5780D65 /* MediaServerPlaybackRepository+Prefetch.swift in Sources */,
+				CE5E917D03524F70BDD9BC11 /* MediaServerPlaybackRepository+Controls.swift in Sources */,
+				E89D5AC408464EF5BAC60717 /* MediaServerPlaybackRepository+Reporting.swift in Sources */,
+				03CAF8F6CAE04BCC83623E8B /* MediaServerPlaybackRepository+Errors.swift in Sources */,
+				5CCB0FA8C6514D3AB9983100 /* MediaServerPlaybackRepository+Enhancements.swift in Sources */,
+				6528C8B12EDB7F2200A71C01 /* InstantMixKind.swift in Sources */,
+				6528C8B22EDB7F2200A71C01 /* Extensions.swift in Sources */,
+				6528C8B32EDB7F2200A71C01 /* Artist.swift in Sources */,
+				D9BC069FF4D94B7EB9C4A002 /* Logger.swift in Sources */,
+				6528C8B42EDB7F2200A71C01 /* RootView.swift in Sources */,
+				6528C8B52EDB7F2200A71C01 /* ToggleLikeTrackUseCase.swift in Sources */,
+				6528C8B62EDB7F2200A71C01 /* AppCoordinator.swift in Sources */,
+				659292392EE1A685006E1285 /* MediaServerLibraryImporter+Albums.swift in Sources */,
+				6592923A2EE1A685006E1285 /* MediaServerLibraryImporter.swift in Sources */,
+				6592923B2EE1A685006E1285 /* MediaServerLibraryImporter+Tracks.swift in Sources */,
+				6592923C2EE1A685006E1285 /* MediaServerLibraryImporter+Genres.swift in Sources */,
+				6592923D2EE1A685006E1285 /* MediaServerLibraryImporter+Artists.swift in Sources */,
+				6592923E2EE1A685006E1285 /* MediaServerLibraryImporter+Cleanup.swift in Sources */,
+				6592923F2EE1A685006E1285 /* MediaServerPlaylistSyncer.swift in Sources */,
+				659292402EE1A685006E1285 /* MediaServerLibraryFetcher.swift in Sources */,
+				659292412EE1A685006E1285 /* MediaServerSyncManager.swift in Sources */,
+				6528C8B72EDB7F2200A71C01 /* ShuffleByArtistUseCase.swift in Sources */,
+				6528C8B82EDB7F2200A71C01 /* SearchView.swift in Sources */,
+				6528C8B92EDB7F2200A71C01 /* FetchLibraryOverviewUseCase.swift in Sources */,
+				659290A12EE06CB1006E1285 /* MediaServerLibraryRepository+Search.swift in Sources */,
+				659290A22EE06CB1006E1285 /* MediaServerLibraryRepository.swift in Sources */,
+				659290A32EE06CB1006E1285 /* MediaServerLibraryRepository+Sync.swift in Sources */,
+				659290A42EE06CB1006E1285 /* MediaServerLibraryRepository+Recents.swift in Sources */,
+				659290A52EE06CB1006E1285 /* MediaServerLibraryRepository+Playlists.swift in Sources */,
+				659290A62EE06CB1006E1285 /* MediaServerLibraryRepository+Browsing.swift in Sources */,
+				6528C8BB2EDB7F2200A71C01 /* SortingMenu.swift in Sources */,
+				65C2B3D42EDF7E0100034D94 /* MediaServerAPIClient.swift in Sources */,
+				65C2B3D62EDF7E0100034D94 /* MediaServerAPIClientFactory.swift in Sources */,
+				6528C8DF2EDB944600A71C01 /* AppTheme.swift in Sources */,
+				6528C8BC2EDB7F2200A71C01 /* SearchResults.swift in Sources */,
+				6528C8BD2EDB7F2200A71C01 /* UpNextView.swift in Sources */,
+				6528C8BE2EDB7F2200A71C01 /* AlbumDetailView.swift in Sources */,
+				6528C8C02EDB7F2200A71C01 /* Playlist.swift in Sources */,
+				6528C8C12EDB7F2200A71C01 /* TrackSortOption.swift in Sources */,
+				6528C8C22EDB7F2200A71C01 /* HomeView.swift in Sources */,
+				6528C8C32EDB7F2200A71C01 /* SearchLibraryUseCase.swift in Sources */,
+				6528C8C42EDB7F2200A71C01 /* ArtistsView.swift in Sources */,
+				659292252EE1925F006E1285 /* DefaultJellyfinAPIClient+UserLibrary.swift in Sources */,
+				659292262EE1925F006E1285 /* DefaultJellyfinAPIClient+LibraryBrowse.swift in Sources */,
+				659292272EE1925F006E1285 /* DefaultJellyfinAPIClient+Tracks.swift in Sources */,
+				6528C8C52EDB7F2200A71C01 /* NowPlayingView.swift in Sources */,
+				6528C8C62EDB7F2200A71C01 /* CoreDataHelpers.swift in Sources */,
+				6528C8C72EDB7F2200A71C01 /* HTTPClient.swift in Sources */,
+				659292432EE1B25C006E1285 /* OSLogLogger.swift in Sources */,
+				6528C8C82EDB7F2200A71C01 /* LibraryView.swift in Sources */,
+				6528C8C92EDB7F2200A71C01 /* AlbumsView.swift in Sources */,
+				6528C8CA2EDB7F2200A71C01 /* AlbumSortOption.swift in Sources */,
+				6528C8CB2EDB7F2200A71C01 /* GenerateInstantMixUseCase.swift in Sources */,
+				6528C8CC2EDB7F2200A71C01 /* KartunesApp.swift in Sources */,
+				6528C8CD2EDB7F2200A71C01 /* PlaybackViewModel.swift in Sources */,
+				65C2B3CD2EDEF63700034D94 /* GenreDetailView.swift in Sources */,
+				65C2B3D82EDF7E1700034D94 /* MediaServerType.swift in Sources */,
+				65C2B3CE2EDEF63700034D94 /* GenresView.swift in Sources */,
+				65C2B3D02EDF109A00034D94 /* LikedPlaylistManager.swift in Sources */,
+				6592922C2EE1926C006E1285 /* DefaultEmbyAPIClient+Tracks.swift in Sources */,
+				6592922D2EE1926C006E1285 /* DefaultEmbyAPIClient+LibraryBrowse.swift in Sources */,
+				6592922E2EE1926C006E1285 /* DefaultEmbyAPIClient+InstantMix.swift in Sources */,
+				6592922F2EE1926C006E1285 /* DefaultEmbyAPIClient+UserLibrary.swift in Sources */,
+				6528C91C2EDC621B00A71C01 /* WatchConnectivityService.swift in Sources */,
+				65C2B3C92EDE4C0600034D94 /* AddToPlaylistSheet.swift in Sources */,
+				65C2B3CA2EDE4C0600034D94 /* CreatePlaylistView.swift in Sources */,
+				4AB501163AF7456ABF0594D2 /* MediaServerAuthRepository.swift in Sources */,
+				6528C8CF2EDB7F2200A71C01 /* UmbrellaGenres.swift in Sources */,
+				6528C8E52EDC4F5E00A71C01 /* NowPlayingManager.swift in Sources */,
+				6528C8D02EDB7F2200A71C01 /* PlaybackContext.swift in Sources */,
+				6528C8D12EDB7F2200A71C01 /* PlaybackQueue.swift in Sources */,
+				659290E32EE0709E006E1285 /* PlaylistMapping.swift in Sources */,
+				659290E42EE0709E006E1285 /* TrackMapping.swift in Sources */,
+				659290E52EE0709E006E1285 /* ArtistMapping.swift in Sources */,
+				659290E62EE0709E006E1285 /* AlbumMapping.swift in Sources */,
+				8BF7A04957474722A609C001 /* DTOImageTagHelpers.swift in Sources */,
+				6528C8D22EDB7F2200A71C01 /* CoreDataStack.swift in Sources */,
+				6528C8D32EDB7F2200A71C01 /* Track.swift in Sources */,
+				6528C8D42EDB7F2200A71C01 /* MiniPlayerView.swift in Sources */,
+				6528C8D52EDB7F2200A71C01 /* Server.swift in Sources */,
+				6528C8D62EDB7F2200A71C01 /* LibraryMenuView.swift in Sources */,
+				0FE5CA8482C3476A8CF5E499 /* MediaServerPreferencesRepository.swift in Sources */,
+				6528C8D82EDB7F2200A71C01 /* PreferencesRepository.swift in Sources */,
+				6528C8D92EDB7F2200A71C01 /* Album.swift in Sources */,
+				6528C8DA2EDB7F2200A71C01 /* PlaylistsView.swift in Sources */,
+				6528C8DB2EDB7F2200A71C01 /* CoreDataExtensions.swift in Sources */,
+				6528C8DD2EDB7F2200A71C01 /* LibraryRepository.swift in Sources */,
+				658D4FBA2ED645EB0012D19C /* KartunesDataModel.xcdatamodeld in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		65C2B3B32EDDD7F700034D94 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6528C9092EDC5F4000A71C01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6528C8E92EDC5F3F00A71C01 /* Kartunes Watch App Watch App */;
+			targetProxy = 6528C9082EDC5F4000A71C01 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		6528C90C2EDC5F4000A71C01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AppAccent;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 55C8Z3MUYL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Kartunes;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.kartul.Kartunes;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kartul.Kartunes.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Debug;
+		};
+		6528C90D2EDC5F4000A71C01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AppAccent;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 55C8Z3MUYL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Kartunes;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.kartul.Kartunes;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kartul.Kartunes.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.6;
+			};
+			name = Release;
+		};
+		658D4F542ED63F620012D19C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 55C8Z3MUYL;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		658D4F552ED63F620012D19C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 55C8Z3MUYL;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		658D4F572ED63F620012D19C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AppAccent;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 55C8Z3MUYL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kartunes-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Kartunes;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDarkContent;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kartul.Kartunes;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		658D4F582ED63F620012D19C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AppAccent;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 55C8Z3MUYL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kartunes-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Kartunes;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDarkContent;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kartul.Kartunes;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		65C2B3C52EDDD7F700034D94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 55C8Z3MUYL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kartul.kartunes.tv;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 26.1;
+			};
+			name = Debug;
+		};
+		65C2B3C62EDDD7F700034D94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 55C8Z3MUYL;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kartul.kartunes.tv;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 26.1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6528C90B2EDC5F4000A71C01 /* Build configuration list for PBXNativeTarget "Kartunes Watch App Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6528C90C2EDC5F4000A71C01 /* Debug */,
+				6528C90D2EDC5F4000A71C01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		658D4F2B2ED63F620012D19C /* Build configuration list for PBXProject "Kartunes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				658D4F542ED63F620012D19C /* Debug */,
+				658D4F552ED63F620012D19C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		658D4F562ED63F620012D19C /* Build configuration list for PBXNativeTarget "Kartunes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				658D4F572ED63F620012D19C /* Debug */,
+				658D4F582ED63F620012D19C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		65C2B3C42EDDD7F700034D94 /* Build configuration list for PBXNativeTarget "kartunes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				65C2B3C52EDDD7F700034D94 /* Debug */,
+				65C2B3C62EDDD7F700034D94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		658D4FB82ED645EB0012D19C /* KartunesDataModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				658D4FB92ED645EB0012D19C /* KartunesDataModel.xcdatamodel */,
+			);
+			currentVersion = 658D4FB92ED645EB0012D19C /* KartunesDataModel.xcdatamodel */;
+			path = KartunesDataModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 658D4F282ED63F620012D19C /* Project object */;
+}
