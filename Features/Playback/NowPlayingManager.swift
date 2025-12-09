@@ -77,7 +77,7 @@ final class NowPlayingManager {
         // Previous Track
         commandCenter.previousTrackCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
-                self?.playbackViewModel.previous()
+                await self?.playbackViewModel.skipBackOrRestart()
             }
             return .success
         }

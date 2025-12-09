@@ -311,6 +311,29 @@ final class PlaybackViewModel: ObservableObject {
         }
     }
     
+    /// Skip forward to next track (for CarPlay and iOS UI)
+    func skipForwardTrack() async {
+        next()
+    }
+    
+    /// Skip back or restart current track (for CarPlay and iOS UI)
+    /// If playback position < 5s, go to previous track
+    /// Else, seek to start of current track
+    func skipBackOrRestart() async {
+        // Get the actual current time from the repository to ensure accuracy
+        // The cached currentTime might be stale (updated every 1 second)
+        let actualTime = await playbackRepository.getCurrentTime()
+        logger.debug("skipBackOrRestart: actualTime = \(actualTime)s, cached currentTime = \(currentTime)s, duration = \(duration)s")
+        
+        if actualTime < 5 {
+            logger.debug("skipBackOrRestart: Time < 5s, going to previous track")
+            previous()
+        } else {
+            logger.debug("skipBackOrRestart: Time >= 5s, seeking to beginning of current track")
+            seek(to: 0)
+        }
+    }
+    
     private func playNextShuffledTrack() {
         guard let queue = activeQueue else { return }
         

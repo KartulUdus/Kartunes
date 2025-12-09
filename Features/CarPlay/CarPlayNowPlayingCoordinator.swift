@@ -3,38 +3,42 @@ import CarPlay
 import MediaPlayer
 import Combine
 import UIKit
+@preconcurrency import CoreData
 
 @MainActor
 final class CarPlayNowPlayingCoordinator {
     private let logger = Log.make(.carPlay)
     
-    private let playbackViewModel: PlaybackViewModel
-    private let playbackRepository: PlaybackRepository
+    private var playbackViewModel: PlaybackViewModel
+    private var playbackRepository: PlaybackRepository
+    private var libraryRepository: LibraryRepository?
     private var cancellables = Set<AnyCancellable>()
     
-    // Custom buttons
-    private var back10PercentButton: CPNowPlayingButton?
-    private var forward10PercentButton: CPNowPlayingButton?
-    private var back30sButton: CPNowPlayingButton?
-    private var forward30sButton: CPNowPlayingButton?
-    private var heartButton: CPNowPlayingButton?
-    private var radioButton: CPNowPlayingButton?
+    private var skipAhead10Button: CPNowPlayingImageButton?
+    private var shuffleButton: CPNowPlayingImageButton?
+    private var repeatButton: CPNowPlayingImageButton?
+    private var heartButton: CPNowPlayingImageButton?
+    private var radioButton: CPNowPlayingImageButton?
     
     init(
         playbackViewModel: PlaybackViewModel,
-        playbackRepository: PlaybackRepository
+        playbackRepository: PlaybackRepository,
+        libraryRepository: LibraryRepository? = nil
     ) {
         self.playbackViewModel = playbackViewModel
         self.playbackRepository = playbackRepository
+        self.libraryRepository = libraryRepository
     }
     
     func updateRepositories(
         playbackViewModel: PlaybackViewModel,
-        playbackRepository: PlaybackRepository
+        playbackRepository: PlaybackRepository,
+        libraryRepository: LibraryRepository? = nil
     ) {
         stop()
         self.playbackViewModel = playbackViewModel
         self.playbackRepository = playbackRepository
+        self.libraryRepository = libraryRepository
         start()
     }
     
@@ -42,7 +46,24 @@ final class CarPlayNowPlayingCoordinator {
         setupRemoteCommands()
         setupObservers()
         createCustomButtons()
+        syncInitialState()
         updateNowPlayingButtons()
+    }
+    
+    private func syncInitialState() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+        let repeatType: MPRepeatType = {
+            switch playbackViewModel.repeatMode {
+            case .off: return .off
+            case .one: return .one
+            case .all: return .all
+            }
+        }()
+        commandCenter.changeRepeatModeCommand.currentRepeatType = repeatType
+        repeatButton?.isSelected = (playbackViewModel.repeatMode != .off)
+        
+        commandCenter.changeShuffleModeCommand.currentShuffleType = playbackViewModel.isShuffleEnabled ? .items : .off
+        shuffleButton?.isSelected = playbackViewModel.isShuffleEnabled
     }
     
     func stop() {
@@ -50,12 +71,9 @@ final class CarPlayNowPlayingCoordinator {
         removeRemoteCommands()
     }
     
-    // MARK: - Remote Commands
-    
     private func setupRemoteCommands() {
         let commandCenter = MPRemoteCommandCenter.shared()
         
-        // Play
         commandCenter.playCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
                 await self?.playbackRepository.resume()
@@ -64,7 +82,6 @@ final class CarPlayNowPlayingCoordinator {
             return .success
         }
         
-        // Pause
         commandCenter.pauseCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
                 await self?.playbackRepository.pause()
@@ -73,7 +90,6 @@ final class CarPlayNowPlayingCoordinator {
             return .success
         }
         
-        // Toggle Play/Pause
         commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
                 if self?.playbackViewModel.isPlaying == true {
@@ -87,43 +103,65 @@ final class CarPlayNowPlayingCoordinator {
             return .success
         }
         
-        // Next Track
         commandCenter.nextTrackCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
-                await self?.playbackRepository.next()
+                await self?.playbackViewModel.skipForwardTrack()
             }
             return .success
         }
         
-        // Previous Track
         commandCenter.previousTrackCommand.addTarget { [weak self] _ in
             Task { @MainActor [weak self] in
-                await self?.playbackRepository.previous()
+                await self?.playbackViewModel.skipBackOrRestart()
             }
             return .success
         }
         
-        // Skip Forward (30s)
-        commandCenter.skipForwardCommand.preferredIntervals = [30]
-        commandCenter.skipForwardCommand.addTarget { [weak self] event in
-            guard let event = event as? MPSkipIntervalCommandEvent else { return .commandFailed }
+        commandCenter.skipForwardCommand.isEnabled = false
+        commandCenter.skipBackwardCommand.isEnabled = false
+        
+        commandCenter.changeShuffleModeCommand.isEnabled = true
+        commandCenter.changeShuffleModeCommand.currentShuffleType = playbackViewModel.isShuffleEnabled ? .items : .off
+        commandCenter.changeShuffleModeCommand.addTarget { [weak self] event in
+            guard let event = event as? MPChangeShuffleModeCommandEvent,
+                  let self = self else { return .commandFailed }
             Task { @MainActor [weak self] in
-                await self?.seekForward(seconds: event.interval)
+                let shuffleMode: MPShuffleType = event.shuffleType
+                self?.playbackViewModel.isShuffleEnabled = (shuffleMode == .items)
+                MPRemoteCommandCenter.shared().changeShuffleModeCommand.currentShuffleType = shuffleMode
             }
             return .success
         }
         
-        // Skip Backward (30s)
-        commandCenter.skipBackwardCommand.preferredIntervals = [30]
-        commandCenter.skipBackwardCommand.addTarget { [weak self] event in
-            guard let event = event as? MPSkipIntervalCommandEvent else { return .commandFailed }
+        commandCenter.changeRepeatModeCommand.isEnabled = true
+        let currentRepeatType: MPRepeatType = {
+            switch playbackViewModel.repeatMode {
+            case .off: return .off
+            case .one: return .one
+            case .all: return .all
+            }
+        }()
+        commandCenter.changeRepeatModeCommand.currentRepeatType = currentRepeatType
+        commandCenter.changeRepeatModeCommand.addTarget { [weak self] event in
+            guard let event = event as? MPChangeRepeatModeCommandEvent,
+                  let self = self else { return .commandFailed }
             Task { @MainActor [weak self] in
-                await self?.seekBackward(seconds: event.interval)
+                let repeatType = event.repeatType
+                switch repeatType {
+                case .off:
+                    self?.playbackViewModel.repeatMode = .off
+                case .one:
+                    self?.playbackViewModel.repeatMode = .one
+                case .all:
+                    self?.playbackViewModel.repeatMode = .all
+                @unknown default:
+                    self?.playbackViewModel.repeatMode = .off
+                }
+                MPRemoteCommandCenter.shared().changeRepeatModeCommand.currentRepeatType = repeatType
             }
             return .success
         }
         
-        // Change Playback Position (for scrubbing)
         commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
             guard let event = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
             Task { @MainActor [weak self] in
@@ -132,14 +170,11 @@ final class CarPlayNowPlayingCoordinator {
             return .success
         }
         
-        // Enable all commands
         commandCenter.playCommand.isEnabled = true
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.togglePlayPauseCommand.isEnabled = true
         commandCenter.nextTrackCommand.isEnabled = true
         commandCenter.previousTrackCommand.isEnabled = true
-        commandCenter.skipForwardCommand.isEnabled = true
-        commandCenter.skipBackwardCommand.isEnabled = true
         commandCenter.changePlaybackPositionCommand.isEnabled = true
     }
     
@@ -150,15 +185,12 @@ final class CarPlayNowPlayingCoordinator {
         commandCenter.togglePlayPauseCommand.removeTarget(nil)
         commandCenter.nextTrackCommand.removeTarget(nil)
         commandCenter.previousTrackCommand.removeTarget(nil)
-        commandCenter.skipForwardCommand.removeTarget(nil)
-        commandCenter.skipBackwardCommand.removeTarget(nil)
         commandCenter.changePlaybackPositionCommand.removeTarget(nil)
+        commandCenter.changeShuffleModeCommand.removeTarget(nil)
+        commandCenter.changeRepeatModeCommand.removeTarget(nil)
     }
     
-    // MARK: - Observers
-    
     private func setupObservers() {
-        // Observe current track changes
         playbackViewModel.$currentTrack
             .sink { [weak self] track in
                 self?.updateNowPlayingInfo(for: track)
@@ -166,14 +198,46 @@ final class CarPlayNowPlayingCoordinator {
             }
             .store(in: &cancellables)
         
-        // Observe playback state
         playbackViewModel.$isPlaying
             .sink { [weak self] isPlaying in
                 self?.updatePlaybackState(isPlaying: isPlaying)
             }
             .store(in: &cancellables)
         
-        // Observe time updates
+        playbackViewModel.$isShuffleEnabled
+            .sink { [weak self] isEnabled in
+                guard let self = self else { return }
+                let commandCenter = MPRemoteCommandCenter.shared()
+                commandCenter.changeShuffleModeCommand.currentShuffleType = isEnabled ? .items : .off
+                self.shuffleButton?.isSelected = isEnabled
+                self.updateNowPlayingButtons()
+                self.updateNowPlayingInfo(for: self.playbackViewModel.currentTrack)
+            }
+            .store(in: &cancellables)
+        
+        playbackViewModel.$repeatMode
+            .sink { [weak self] repeatMode in
+                guard let self = self else { return }
+                let commandCenter = MPRemoteCommandCenter.shared()
+                let repeatType: MPRepeatType = {
+                    switch repeatMode {
+                    case .off: return .off
+                    case .one: return .one
+                    case .all: return .all
+                    }
+                }()
+                commandCenter.changeRepeatModeCommand.currentRepeatType = repeatType
+                
+                let imageName = (repeatMode == .one) ? "repeat.1" : "repeat"
+                if let image = UIImage(systemName: imageName) {
+                    self.updateRepeatButtonImage(image, for: repeatMode)
+                }
+                
+                self.repeatButton?.isSelected = (repeatMode != .off)
+                self.updateNowPlayingInfo(for: self.playbackViewModel.currentTrack)
+            }
+            .store(in: &cancellables)
+        
         playbackViewModel.$currentTime
             .sink { [weak self] _ in
                 self?.updatePlaybackTime()
@@ -187,13 +251,16 @@ final class CarPlayNowPlayingCoordinator {
             .store(in: &cancellables)
     }
     
-    // MARK: - Now Playing Info
-    
     private func updateNowPlayingInfo(for track: Track?) {
         guard let track = track else {
             MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
             return
         }
+        
+        let existingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let existingTitle = existingInfo?[MPMediaItemPropertyTitle] as? String
+        let existingArtist = existingInfo?[MPMediaItemPropertyArtist] as? String
+        let isSameTrack = existingTitle == track.title && existingArtist == track.artistName
         
         var nowPlayingInfo: [String: Any] = [
             MPMediaItemPropertyTitle: track.title,
@@ -205,27 +272,34 @@ final class CarPlayNowPlayingCoordinator {
             nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = albumTitle
         }
         
-        // Update duration
         if playbackViewModel.duration > 0 {
             nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playbackViewModel.duration
         }
         
-        // Update elapsed time
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playbackViewModel.currentTime
         
-        // Load artwork asynchronously
-        Task {
-            if let artwork = await loadArtwork(for: track) {
-                await MainActor.run {
-                    nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
-                    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-                }
-            } else {
-                await MainActor.run {
-                    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        if isSameTrack, let existingArtwork = existingInfo?[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+            nowPlayingInfo[MPMediaItemPropertyArtwork] = existingArtwork
+        }
+        
+        if !isSameTrack || existingInfo?[MPMediaItemPropertyArtwork] == nil {
+            Task {
+                if let artwork = await loadArtwork(for: track) {
+                    await MainActor.run {
+                        var updatedInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
+                        updatedInfo[MPMediaItemPropertyArtwork] = artwork
+                        updatedInfo[MPMediaItemPropertyTitle] = track.title
+                        updatedInfo[MPMediaItemPropertyArtist] = track.artistName
+                        if let albumTitle = track.albumTitle {
+                            updatedInfo[MPMediaItemPropertyAlbumTitle] = albumTitle
+                        }
+                        MPNowPlayingInfoCenter.default().nowPlayingInfo = updatedInfo
+                    }
                 }
             }
         }
+        
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
     
     private func updatePlaybackState(isPlaying: Bool) {
@@ -244,162 +318,199 @@ final class CarPlayNowPlayingCoordinator {
     }
     
     private func loadArtwork(for track: Track) async -> MPMediaItemArtwork? {
-        // TODO: Load artwork from Jellyfin image endpoint
-        // For now, return nil - will be implemented when we have image loading
-        return nil
+        let imageURL: URL? = {
+            if let url = playbackViewModel.buildTrackImageURL(trackId: track.id, albumId: track.albumId) {
+                return url
+            }
+            if let albumId = track.albumId,
+               let url = playbackViewModel.albumArtURL(for: albumId) {
+                return url
+            }
+            return nil
+        }()
+        
+        guard let imageURL = imageURL else {
+            return nil
+        }
+        
+        return await loadArtwork(from: imageURL)
     }
     
-    // MARK: - Custom Buttons
+    private func loadArtwork(from url: URL) async -> MPMediaItemArtwork? {
+        do {
+            var request = URLRequest(url: url)
+            request.cachePolicy = .returnCacheDataElseLoad
+            request.timeoutInterval = 10.0
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                return nil
+            }
+            
+            guard let image = UIImage(data: data) else {
+                return nil
+            }
+            
+            return MPMediaItemArtwork(boundsSize: image.size) { _ in
+                return image
+            }
+        } catch {
+            logger.error("Failed to load artwork: \(error.localizedDescription)")
+            return nil
+        }
+    }
     
     private func createCustomButtons() {
-        // Back 10%
-        back10PercentButton = CPNowPlayingButton(
-            handler: { [weak self] _ in
+        if let image = UIImage(systemName: "arrow.clockwise") {
+            skipAhead10Button = CPNowPlayingImageButton(image: image) { [weak self] _ in
                 Task { @MainActor [weak self] in
-                    await self?.seekBackward(percentage: 0.1)
+                    await self?.skipAhead10Percent()
                 }
             }
-        )
-        back10PercentButton?.image = UIImage(systemName: "gobackward.10")
+        }
         
-        // Forward 10%
-        forward10PercentButton = CPNowPlayingButton(
-            handler: { [weak self] _ in
+        if let image = UIImage(systemName: "shuffle") {
+            shuffleButton = CPNowPlayingImageButton(image: image) { [weak self] button in
                 Task { @MainActor [weak self] in
-                    await self?.seekForward(percentage: 0.1)
+                    guard let self = self else { return }
+                    self.playbackViewModel.toggleShuffle()
+                    button.isSelected = self.playbackViewModel.isShuffleEnabled
+                    self.updateNowPlayingButtons()
                 }
             }
-        )
-        forward10PercentButton?.image = UIImage(systemName: "goforward.10")
+            shuffleButton?.isSelected = playbackViewModel.isShuffleEnabled
+        }
         
-        // Back 30s
-        back30sButton = CPNowPlayingButton(
-            handler: { [weak self] _ in
+        let repeatImageName = (playbackViewModel.repeatMode == .one) ? "repeat.1" : "repeat"
+        if let image = UIImage(systemName: repeatImageName) {
+            repeatButton = CPNowPlayingImageButton(image: image) { [weak self] button in
                 Task { @MainActor [weak self] in
-                    await self?.seekBackward(seconds: 30)
+                    guard let self = self else { return }
+                    self.playbackViewModel.toggleRepeat()
+                    let newMode = self.playbackViewModel.repeatMode
+                    
+                    let imageName = (newMode == .one) ? "repeat.1" : "repeat"
+                    if let newImage = UIImage(systemName: imageName) {
+                        self.updateRepeatButtonImage(newImage, for: newMode)
+                    }
+                    
+                    button.isSelected = (newMode != .off)
                 }
             }
-        )
-        back30sButton?.image = UIImage(systemName: "gobackward.30")
+            repeatButton?.isSelected = (playbackViewModel.repeatMode != .off)
+        }
         
-        // Forward 30s
-        forward30sButton = CPNowPlayingButton(
-            handler: { [weak self] _ in
-                Task { @MainActor [weak self] in
-                    await self?.seekForward(seconds: 30)
-                }
-            }
-        )
-        forward30sButton?.image = UIImage(systemName: "goforward.30")
-        
-        // Heart button (favourite)
-        heartButton = CPNowPlayingButton(
-            handler: { [weak self] _ in
+        if let image = UIImage(systemName: "heart") {
+            heartButton = CPNowPlayingImageButton(image: image) { [weak self] _ in
                 Task { @MainActor [weak self] in
                     await self?.toggleFavourite()
                 }
             }
-        )
+        }
         updateHeartButton(for: playbackViewModel.currentTrack)
         
-        // Radio button (InstantMix)
-        radioButton = CPNowPlayingButton(
-            handler: { [weak self] _ in
+        if let image = UIImage(systemName: "radio") {
+            radioButton = CPNowPlayingImageButton(image: image) { [weak self] _ in
                 Task { @MainActor [weak self] in
                     await self?.startRadio()
                 }
             }
-        )
-        radioButton?.image = UIImage(systemName: "radio")
+        }
     }
     
     private func updateNowPlayingButtons() {
         var buttons: [CPNowPlayingButton] = []
-        
-        if let back10Percent = back10PercentButton {
-            buttons.append(back10Percent)
-        }
-        if let forward10Percent = forward10PercentButton {
-            buttons.append(forward10Percent)
-        }
-        if let back30s = back30sButton {
-            buttons.append(back30s)
-        }
-        if let forward30s = forward30sButton {
-            buttons.append(forward30s)
-        }
-        if let heart = heartButton {
-            buttons.append(heart)
-        }
-        if let radio = radioButton {
-            buttons.append(radio)
-        }
-        
+        if let skipAhead = skipAhead10Button { buttons.append(skipAhead) }
+        if let shuffle = shuffleButton { buttons.append(shuffle) }
+        if let repeatBtn = repeatButton { buttons.append(repeatBtn) }
+        if let heart = heartButton { buttons.append(heart) }
+        if let radio = radioButton { buttons.append(radio) }
         CPNowPlayingTemplate.shared.updateNowPlayingButtons(buttons)
     }
     
+    private func updateRepeatButtonImage(_ image: UIImage, for mode: RepeatMode) {
+        let imageName = (mode == .one) ? "repeat.1" : "repeat"
+        if let newImage = UIImage(systemName: imageName) {
+            self.repeatButton = CPNowPlayingImageButton(image: newImage) { [weak self] button in
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
+                    self.playbackViewModel.toggleRepeat()
+                    let newMode = self.playbackViewModel.repeatMode
+                    
+                    let iconName = (newMode == .one) ? "repeat.1" : "repeat"
+                    if let icon = UIImage(systemName: iconName) {
+                        self.updateRepeatButtonImage(icon, for: newMode)
+                    }
+                    
+                    button.isSelected = (newMode != .off)
+                }
+            }
+            self.repeatButton?.isSelected = (mode != .off)
+            updateNowPlayingButtons()
+        }
+    }
+    
     private func updateHeartButton(for track: Track?) {
-        guard let track = track else {
-            heartButton?.image = UIImage(systemName: "heart")
-            return
+        let imageName = track?.isLiked == true ? "heart.fill" : "heart"
+        guard let image = UIImage(systemName: imageName) else { return }
+        
+        heartButton = CPNowPlayingImageButton(image: image) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                await self?.toggleFavourite()
+            }
         }
         
-        let imageName = track.isLiked ? "heart.fill" : "heart"
-        heartButton?.image = UIImage(systemName: imageName)
+        updateNowPlayingButtons()
     }
-    
-    // MARK: - Seek Helpers
-    
-    private func seekForward(percentage: Double) async {
-        let duration = playbackViewModel.duration
-        guard duration > 0 else { return }
-        
-        let currentTime = playbackViewModel.currentTime
-        let newTime = min(currentTime + (duration * percentage), duration)
-        await playbackRepository.seek(to: newTime)
-    }
-    
-    private func seekBackward(percentage: Double) async {
-        let duration = playbackViewModel.duration
-        guard duration > 0 else { return }
-        
-        let currentTime = playbackViewModel.currentTime
-        let newTime = max(currentTime - (duration * percentage), 0)
-        await playbackRepository.seek(to: newTime)
-    }
-    
-    private func seekForward(seconds: TimeInterval) async {
-        let duration = playbackViewModel.duration
-        guard duration > 0 else { return }
-        
-        let currentTime = playbackViewModel.currentTime
-        let newTime = min(currentTime + seconds, duration)
-        await playbackRepository.seek(to: newTime)
-    }
-    
-    private func seekBackward(seconds: TimeInterval) async {
-        let duration = playbackViewModel.duration
-        guard duration > 0 else { return }
-        
-        let currentTime = playbackViewModel.currentTime
-        let newTime = max(currentTime - seconds, 0)
-        await playbackRepository.seek(to: newTime)
-    }
-    
-    // MARK: - Actions
     
     private func toggleFavourite() async {
         guard let track = playbackViewModel.currentTrack else { return }
         
         do {
             let updatedTrack = try await playbackRepository.toggleLike(track: track)
-            // Update view model's track if it's still the current one
             if playbackViewModel.currentTrack?.id == updatedTrack.id {
                 playbackViewModel.currentTrack = updatedTrack
             }
+            await updateLikedPlaylist(track: updatedTrack, isNowLiked: updatedTrack.isLiked)
         } catch {
             logger.error("Failed to toggle favourite: \(error.localizedDescription)")
         }
+    }
+    
+    private func updateLikedPlaylist(track: Track, isNowLiked: Bool) async {
+        guard let libraryRepository = libraryRepository else {
+            return
+        }
+        
+        let manager = LikedPlaylistManager(
+            libraryRepository: libraryRepository,
+            coreDataStack: CoreDataStack.shared,
+            serverId: track.serverId
+        )
+        
+        do {
+            if isNowLiked {
+                try await manager.addTrackToLikedPlaylist(trackId: track.id)
+            } else {
+                try await manager.removeTrackFromLikedPlaylist(trackId: track.id)
+            }
+        } catch {
+            logger.warning("Failed to update liked playlist: \(error.localizedDescription)")
+        }
+    }
+    
+    private func skipAhead10Percent() async {
+        guard playbackViewModel.currentTrack != nil else { return }
+        
+        let currentTime = playbackViewModel.currentTime
+        let duration = playbackViewModel.duration
+        
+        guard duration > 0 else { return }
+        
+        let skipAmount = duration * 0.1
+        let newTime = min(currentTime + skipAmount, duration)
+        playbackViewModel.seek(to: newTime)
     }
     
     private func startRadio() async {
@@ -421,4 +532,5 @@ final class CarPlayNowPlayingCoordinator {
         }
     }
 }
+
 

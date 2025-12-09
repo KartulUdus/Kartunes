@@ -49,10 +49,14 @@ final class AppCoordinator: ObservableObject {
     private(set) var watchConnectivityService: WatchConnectivityService?
     
     // CarPlay
-    // private(set) var carPlaySceneDelegate: CarPlaySceneDelegate?
+    private(set) var carPlaySceneDelegate: CarPlaySceneDelegate?
+    
+    func setCarPlaySceneDelegate(_ delegate: CarPlaySceneDelegate?) {
+        carPlaySceneDelegate = delegate
+    }
     
     // Static reference for CarPlay delegate access
-    // static weak var shared: AppCoordinator?
+    static weak var shared: AppCoordinator?
     
     // Sync State
     @Published var isSyncing = false
@@ -118,7 +122,7 @@ final class AppCoordinator: ObservableObject {
         )
         
         // Set shared reference for CarPlay delegate access
-        //AppCoordinator.shared = self
+        AppCoordinator.shared = self
     }
     
     func loadActiveServer() async {
@@ -283,13 +287,13 @@ final class AppCoordinator: ObservableObject {
         )
         
         // Update CarPlay scene delegate if it exists
-        // if let carPlayDelegate = carPlaySceneDelegate {
-        //     carPlayDelegate.updateRepositories(
-        //         playbackViewModel: playbackViewModel,
-        //         libraryRepository: libraryRepository,
-        //         playbackRepository: playbackRepository
-        //     )
-        // }
+        if let carPlayDelegate = carPlaySceneDelegate {
+            carPlayDelegate.updateRepositories(
+                playbackViewModel: playbackViewModel,
+                libraryRepository: libraryRepository,
+                playbackRepository: playbackRepository
+            )
+        }
         
         // Report capabilities when server is loaded/updated
         Task {
@@ -297,15 +301,15 @@ final class AppCoordinator: ObservableObject {
         }
     }
     
-        // func createCarPlaySceneDelegate() -> CarPlaySceneDelegate {
-        //     let delegate = CarPlaySceneDelegate(
-        //         playbackViewModel: playbackViewModel,
-        //         libraryRepository: libraryRepository,
-        //         playbackRepository: playbackRepository
-        //     )
-        //     carPlaySceneDelegate = delegate
-        //     return delegate
-        // }
+    func createCarPlaySceneDelegate() -> CarPlaySceneDelegate {
+        let delegate = CarPlaySceneDelegate(
+            playbackViewModel: playbackViewModel,
+            libraryRepository: libraryRepository,
+            playbackRepository: playbackRepository
+        )
+        carPlaySceneDelegate = delegate
+        return delegate
+    }
     
     // MARK: - Toast Messages
     

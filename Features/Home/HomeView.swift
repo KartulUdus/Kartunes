@@ -56,6 +56,7 @@ struct HomeView: View {
                         onShuffleLiked: { await playShuffleLiked() },
                         onRecentlyPlayed: { await playRecentlyPlayed() },
                         onRecentlyAdded: { await playRecentlyAdded() },
+                        onShuffleAll: { await playShuffleAll() },
                         onRefreshLiked: { await refreshLikedTracks() }
                     )
                     
@@ -390,6 +391,49 @@ struct HomeView: View {
         }
     }
     
+    private func playShuffleAll() async {
+        UIImpactFeedbackGenerator.medium()
+        
+        await MainActor.run {
+            isLoading = true
+        }
+        
+        defer {
+            Task { @MainActor in
+                isLoading = false
+            }
+        }
+        
+        guard coordinator.activeServer?.id != nil else {
+            Self.logger.warning("playShuffleAll: No active server")
+            return
+        }
+        
+        do {
+            // Fetch all tracks from library
+            let allTracks = try await coordinator.libraryRepository.fetchTracks(albumId: nil)
+            
+            guard !allTracks.isEmpty else {
+                Self.logger.warning("playShuffleAll: No tracks found")
+                return
+            }
+            
+            // Shuffle and limit to 500 for performance
+            let shuffled = allTracks.shuffled().prefix(500)
+            let tracks = Array(shuffled)
+            
+            await MainActor.run {
+                coordinator.playbackViewModel.startQueue(
+                    from: tracks,
+                    at: 0,
+                    context: .custom(tracks.map { $0.id })
+                )
+            }
+        } catch {
+            Self.logger.error("playShuffleAll: Error: \(error.localizedDescription)")
+        }
+    }
+    
     private func refreshLikedTracks() async {
         UIImpactFeedbackGenerator.light()
         
@@ -425,6 +469,7 @@ struct HeroSection: View {
     let onShuffleLiked: () async -> Void
     let onRecentlyPlayed: () async -> Void
     let onRecentlyAdded: () async -> Void
+    let onShuffleAll: () async -> Void
     let onRefreshLiked: () async -> Void
     
     var body: some View {
@@ -504,6 +549,15 @@ struct HeroSection: View {
                 isLoading: isLoading
             ) {
                 await onRecentlyAdded()
+            }
+            
+            PrimaryActionButton(
+                title: "Shuffle All",
+                subtitle: "Random from your entire library",
+                systemImage: "shuffle",
+                isLoading: isLoading
+            ) {
+                await onShuffleAll()
             }
         }
     }
