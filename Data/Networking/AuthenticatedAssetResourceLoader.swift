@@ -281,8 +281,7 @@ final class AuthenticatedAssetResourceLoader: NSObject, AVAssetResourceLoaderDel
     
     private func addAuthHeaders(to request: inout URLRequest) {
         // Add Jellyfin authentication headers
-        let deviceId = UserDefaults.standard.string(forKey: "JellyfinDeviceId") ?? UUID().uuidString
-        UserDefaults.standard.set(deviceId, forKey: "JellyfinDeviceId")
+        let deviceId = DeviceIdentifierStore.loadOrCreateIdentifier(for: "JellyfinDeviceId")
         
         let authHeader = "MediaBrowser Client=\"Kartunes\", Device=\"iOS\", DeviceId=\"\(deviceId)\", Version=\"1.0.0\""
         let tokenHeader = "MediaBrowser Token=\"\(accessToken)\""
@@ -316,4 +315,3 @@ extension URL {
         return components.url ?? url
     }
 }
-

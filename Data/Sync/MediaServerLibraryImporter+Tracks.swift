@@ -11,7 +11,7 @@ enum TrackSyncPhase {
         existingTracks: [String: CDTrack],
         server: CDServer,
         in context: NSManagedObjectContext,
-        progressCallback: @escaping (SyncProgress) -> Void,
+        progressCallback: @Sendable @escaping (SyncProgress) -> Void,
         logger: AppLogger
     ) {
         var seenTrackIds = Set<String>()
@@ -161,4 +161,3 @@ enum TrackSyncPhase {
         }
     }
 }
-

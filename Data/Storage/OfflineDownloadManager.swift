@@ -724,7 +724,7 @@ import CoreData
                         }
                         return
                     }
-                } catch _ {
+                } catch {
                     // Continue anyway - might still work
                 }
                 
@@ -784,8 +784,9 @@ import CoreData
             return
         }
         
-        if error != nil {
+        if let error {
             Task { @MainActor in
+                self.logger.error("Download failed for track \(trackId): \(error.localizedDescription)")
                 DownloadStatusManager.setStatus(.failed, for: trackId)
                 removeAllDownloadData(trackId)
             }
@@ -818,4 +819,3 @@ import CoreData
         return downloadsDirectory.appendingPathComponent("\(trackId).m4a")
     }
 }
-

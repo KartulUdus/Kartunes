@@ -19,7 +19,7 @@ extension MediaServerLibraryRepository {
         let syncManager = await MainActor.run {
             MediaServerSyncManager.create(apiClient: apiClient, coreDataStack: coreDataStack)
         }
-        try await syncManager.syncPlaylists(for: cdServer)
+        try await syncManager.syncPlaylists(for: cdServer.objectID)
     }
     
     func createPlaylist(name: String, summary: String?) async throws -> Playlist {
@@ -233,4 +233,3 @@ extension MediaServerLibraryRepository {
         }
     }
 }
-

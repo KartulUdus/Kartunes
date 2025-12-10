@@ -204,9 +204,8 @@ final class AppCoordinator: ObservableObject {
             }
             
             do {
-                try await syncManager.performFullSync(for: cdServer) { progress in
-                    self.syncProgress = progress.progress
-                    self.syncStage = progress.stage
+                try await syncManager.performFullSync(for: cdServer) { [weak self] progress in
+                    self?.updateSyncStatus(with: progress)
                 }
                 await MainActor.run {
                     isSyncing = false
@@ -419,5 +418,12 @@ final class AppCoordinator: ObservableObject {
             }
         }
     }
-}
 
+    nonisolated func updateSyncStatus(with progress: SyncProgress) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            self.syncProgress = progress.progress
+            self.syncStage = progress.stage
+        }
+    }
+}

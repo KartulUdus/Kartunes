@@ -9,7 +9,7 @@ enum ArtistSyncPhase {
         server: CDServer,
         apiClient: MediaServerAPIClient,
         existing: [String: CDArtist],
-        progressCallback: @escaping (SyncProgress) -> Void
+        progressCallback: @Sendable @escaping (SyncProgress) -> Void
     ) -> [String: CDArtist] {
         DispatchQueue.main.async {
             progressCallback(SyncProgress(progress: 0.52, stage: "Processing library..."))
@@ -54,5 +54,3 @@ enum ArtistSyncPhase {
         return artistMap
     }
 }
-
-

@@ -74,11 +74,11 @@ class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
         assert(Thread.isMainThread, "CarPlay delegate methods must be called on main thread")
         handleCarPlayConnection(interfaceController: interfaceController)
     }
-    
-    @objc(templateApplicationScene:didDisconnect:)
+
+    @objc
     func templateApplicationScene(
         _ templateApplicationScene: CPTemplateApplicationScene,
-        didDisconnect interfaceController: CPInterfaceController
+        didDisconnectInterfaceController interfaceController: CPInterfaceController
     ) {
         assert(Thread.isMainThread, "CarPlay delegate methods must be called on main thread")
         handleCarPlayDisconnection()
@@ -95,7 +95,7 @@ class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
         }
         handleCarPlayConnection(interfaceController: interfaceController)
     }
-    
+
     @objc
     func templateApplicationScene(
         _ templateApplicationScene: CPTemplateApplicationScene,
@@ -321,4 +321,3 @@ class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
         return template
     }
 }
-

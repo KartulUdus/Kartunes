@@ -4,7 +4,7 @@ import Foundation
 // MARK: - Protocol
 
 /// Generic protocol for media server API clients (Jellyfin, Emby, etc.)
-protocol MediaServerAPIClient {
+protocol MediaServerAPIClient: Sendable {
     var accessToken: String? { get }
     var userId: String? { get }
     var serverType: MediaServerType { get }
@@ -49,4 +49,3 @@ protocol MediaServerAPIClient {
 
 // JellyfinAPIClient already conforms to MediaServerAPIClient since it inherits from it
 // The serverType property is implemented in DefaultJellyfinAPIClient
-

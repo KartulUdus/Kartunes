@@ -10,7 +10,7 @@ enum AlbumSyncPhase {
         server: CDServer,
         apiClient: MediaServerAPIClient,
         existing: [String: CDAlbum],
-        progressCallback: @escaping (SyncProgress) -> Void,
+        progressCallback: @Sendable @escaping (SyncProgress) -> Void,
         logger: AppLogger
     ) -> [String: CDAlbum] {
         var albumMap: [String: CDAlbum] = [:]
@@ -88,4 +88,3 @@ enum AlbumSyncPhase {
         return albumMap
     }
 }
-

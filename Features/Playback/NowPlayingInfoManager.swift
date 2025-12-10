@@ -12,9 +12,9 @@ actor NowPlayingInfoManager {
     private var updateGenerationId: Int = 0
     private var artworkCache: [String: MPMediaItemArtwork] = [:]
     private var artworkRequestId: Int = 0
-    nonisolated private let logger: AppLogger
+    private let logger: AppLogger
     
-    nonisolated private init() {
+    private init() {
         self.logger = Log.make(.nowPlaying)
     }
     
@@ -53,35 +53,28 @@ actor NowPlayingInfoManager {
         let trackChanged = currentTrackId != track.id
         currentTrackId = track.id
         
-        // Build Now Playing info using type-safe builder
-        var builder = NowPlayingInfoBuilder()
-        builder.setTitle(track.title)
-        builder.setArtist(track.artistName)
-        builder.setPlaybackRate(isPlaying ? 1.0 : 0.0)
-        builder.setElapsedPlaybackTime(currentTime)
-        builder.setMediaType(1) // Audio
-        
-        if let albumTitle = track.albumTitle {
-            builder.setAlbumTitle(albumTitle)
-        }
-        
-        builder.setPlaybackDuration(duration)
-        
-        // Queue info
-        builder.setQueueCount(queueCount)
-        if let queueIndex = queueIndex {
-            builder.setQueueIndex(queueIndex)
-        }
-        
-        // Use cached artwork if available and track hasn't changed
-        if !trackChanged, let cachedArtwork = artworkCache[track.id] {
-            builder.setArtwork(cachedArtwork)
-        }
-        
-        // Apply update on main actor - build dictionary to avoid capture issues
-        let infoToApply = builder.build()
+        let cachedArtwork = (!trackChanged ? artworkCache[track.id] : nil)
+        let albumTitle = track.albumTitle
+        let queueIndexValue = queueIndex
         await MainActor.run {
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = infoToApply
+            var builder = NowPlayingInfoBuilder()
+            builder.setTitle(track.title)
+            builder.setArtist(track.artistName)
+            builder.setPlaybackRate(isPlaying ? 1.0 : 0.0)
+            builder.setElapsedPlaybackTime(currentTime)
+            builder.setMediaType(1)
+            if let albumTitle {
+                builder.setAlbumTitle(albumTitle)
+            }
+            builder.setPlaybackDuration(duration)
+            builder.setQueueCount(queueCount)
+            if let queueIndex = queueIndexValue {
+                builder.setQueueIndex(queueIndex)
+            }
+            if let cachedArtwork {
+                builder.setArtwork(cachedArtwork)
+            }
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = builder.build()
         }
         
         return updateId
@@ -103,7 +96,6 @@ actor NowPlayingInfoManager {
         await MainActor.run {
             var builder = NowPlayingInfoBuilder()
             builder.merge(existing: MPNowPlayingInfoCenter.default().nowPlayingInfo)
-            // Update playback state
             builder.setPlaybackRate(isPlaying ? 1.0 : 0.0)
             builder.setElapsedPlaybackTime(currentTime)
             MPNowPlayingInfoCenter.default().nowPlayingInfo = builder.build()
@@ -127,7 +119,6 @@ actor NowPlayingInfoManager {
         await MainActor.run {
             var builder = NowPlayingInfoBuilder()
             builder.merge(existing: MPNowPlayingInfoCenter.default().nowPlayingInfo)
-            // Update time and duration
             builder.setElapsedPlaybackTime(currentTime)
             builder.setPlaybackDuration(duration)
             MPNowPlayingInfoCenter.default().nowPlayingInfo = builder.build()
@@ -151,7 +142,6 @@ actor NowPlayingInfoManager {
         await MainActor.run {
             var builder = NowPlayingInfoBuilder()
             builder.merge(existing: MPNowPlayingInfoCenter.default().nowPlayingInfo)
-            // Update queue info
             builder.setQueueCount(queueCount)
             if let queueIndex = queueIndex {
                 builder.setQueueIndex(queueIndex)
@@ -185,7 +175,6 @@ actor NowPlayingInfoManager {
         await MainActor.run {
             var builder = NowPlayingInfoBuilder()
             builder.merge(existing: MPNowPlayingInfoCenter.default().nowPlayingInfo)
-            // Update artwork
             builder.setArtwork(artwork)
             MPNowPlayingInfoCenter.default().nowPlayingInfo = builder.build()
         }
@@ -217,4 +206,3 @@ actor NowPlayingInfoManager {
         return currentTrackId
     }
 }
-

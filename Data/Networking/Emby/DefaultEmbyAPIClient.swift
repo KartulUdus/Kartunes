@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - Implementation
 
-nonisolated final class DefaultEmbyAPIClient: EmbyAPIClient {
+final class DefaultEmbyAPIClient: EmbyAPIClient {
     let baseURL: URL
     private var _accessToken: String?
     private var _userId: String?
@@ -31,13 +31,7 @@ nonisolated final class DefaultEmbyAPIClient: EmbyAPIClient {
         
         // Generate and store device ID (should be persisted in real app)
         let deviceIdKey = "EmbyDeviceId"
-        if let stored = UserDefaults.standard.string(forKey: deviceIdKey) {
-            self.deviceId = stored
-        } else {
-            let newId = UUID().uuidString
-            UserDefaults.standard.set(newId, forKey: deviceIdKey)
-            self.deviceId = newId
-        }
+        self.deviceId = DeviceIdentifierStore.loadOrCreateIdentifier(for: deviceIdKey)
     }
     
     func updateCredentials(accessToken: String, userId: String) {
@@ -48,3 +42,4 @@ nonisolated final class DefaultEmbyAPIClient: EmbyAPIClient {
     }
 }
 
+extension DefaultEmbyAPIClient: @unchecked Sendable {}

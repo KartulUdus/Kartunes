@@ -58,3 +58,6 @@ final class OSLogLogger: AppLogger {
     }
 }
 
+
+@available(iOS 14.0, watchOS 7.0, *)
+extension OSLogLogger: @unchecked Sendable {}

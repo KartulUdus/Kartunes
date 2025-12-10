@@ -1,8 +1,9 @@
 
 import Foundation
+import CoreFoundation
 import OSLog
 
-protocol AppLogger {
+protocol AppLogger: Sendable {
     nonisolated func debug(_ message: @autoclosure () -> String)
     nonisolated func info(_ message: @autoclosure () -> String)
     nonisolated func warning(_ message: @autoclosure () -> String)
@@ -34,3 +35,25 @@ struct Log {
     }
 }
 
+/// Thread-safe storage for device identifiers without requiring main actor access
+enum DeviceIdentifierStore {
+    private static let application = kCFPreferencesCurrentApplication
+    
+    static func loadOrCreateIdentifier(for key: String) -> String {
+        if let existing = loadIdentifier(for: key) {
+            return existing
+        }
+        let newId = UUID().uuidString
+        saveIdentifier(newId, for: key)
+        return newId
+    }
+    
+    static func loadIdentifier(for key: String) -> String? {
+        CFPreferencesCopyAppValue(key as CFString, application) as? String
+    }
+    
+    static func saveIdentifier(_ value: String, for key: String) {
+        CFPreferencesSetAppValue(key as CFString, value as CFPropertyList, application)
+        CFPreferencesAppSynchronize(application)
+    }
+}

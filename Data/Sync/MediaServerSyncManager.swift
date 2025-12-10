@@ -3,13 +3,13 @@ import Foundation
 @preconcurrency import CoreData
 
 /// Sync progress information
-struct SyncProgress {
+struct SyncProgress: Sendable {
     let progress: Double // 0.0 to 1.0
     let stage: String // Description of current stage
 }
 
 /// Sync error types
-enum SyncError: Error {
+enum SyncError: Error, Sendable {
     case alreadySyncing
     case cancelled
 }
@@ -19,24 +19,16 @@ enum SyncError: Error {
 actor MediaServerSyncManager {
     private let apiClient: MediaServerAPIClient
     private let coreDataStack: CoreDataStack
-    private let playlistSyncer: MediaServerPlaylistSyncer
-    private let libraryFetcher: MediaServerLibraryFetcher
-    private let libraryImporter: MediaServerLibraryImporter
     nonisolated private let logger: AppLogger
     
     // Track sync state per server
     private var isSyncing: [UUID: Bool] = [:]
     private var currentSyncTask: [UUID: Task<Void, Error>] = [:]
-    
+
     init(apiClient: MediaServerAPIClient, coreDataStack: CoreDataStack, logger: AppLogger) {
         self.apiClient = apiClient
         self.coreDataStack = coreDataStack
         self.logger = logger
-        // Create helpers with explicit logger (no default parameter calls)
-        // These are value types/classes with nonisolated initializers
-        self.libraryFetcher = MediaServerLibraryFetcher(apiClient: apiClient, logger: logger)
-        self.playlistSyncer = MediaServerPlaylistSyncer(apiClient: apiClient, coreDataStack: coreDataStack, logger: logger)
-        self.libraryImporter = MediaServerLibraryImporter(apiClient: apiClient, coreDataStack: coreDataStack, logger: logger)
     }
     
     /// Factory method with defaults (can be called from any context)
@@ -51,7 +43,7 @@ actor MediaServerSyncManager {
     /// - Throws: Errors from API calls or Core Data operations, or SyncError if already syncing
     func performFullSync(
         for server: CDServer,
-        progressCallback: @escaping (SyncProgress) -> Void = { _ in }
+        progressCallback: @Sendable @escaping (SyncProgress) -> Void = { _ in }
     ) async throws {
         // Extract objectID first (it's Sendable) to avoid capturing non-Sendable CDServer
         let serverObjectID = server.objectID
@@ -87,84 +79,41 @@ actor MediaServerSyncManager {
         isSyncing[serverId] = true
         
         // Create sync task with proper type that can throw errors
-        // Capture all needed values explicitly to avoid actor isolation issues
         let capturedObjectID = serverObjectID
+        let capturedServerName = serverName
+        let capturedApiClient = apiClient
         let capturedCoreDataStack = coreDataStack
         let capturedLogger = logger
-        let capturedLibraryFetcher = libraryFetcher
-        let capturedLibraryImporter = libraryImporter
-        let capturedPlaylistSyncer = playlistSyncer
-        let capturedServerName = serverName
-        let capturedServerId = serverId
-        let syncTask = Task<Void, Error> { @Sendable in
-            defer {
-                Task { @MainActor in
-                    await self.markSyncComplete(serverId: capturedServerId)
-                }
-            }
-            
-            capturedLogger.info("Starting full sync for server: \(capturedServerName)")
-            
-            let (artists, albums, tracks) = try await capturedLibraryFetcher.fetchFullLibrary(
+        let syncTask = Task<Void, Error> {
+            try await MediaServerSyncManager.executeFullSync(
+                serverObjectID: capturedObjectID,
+                serverName: capturedServerName,
+                apiClient: capturedApiClient,
+                coreDataStack: capturedCoreDataStack,
+                logger: capturedLogger,
                 progressCallback: progressCallback
             )
-            
-            // Check for cancellation
-            try Task.checkCancellation()
-            
-            // Get server from main context for import
-            // importLibrary will extract objectID and get server in background context
-            // CDServer is non-Sendable but safe here (thread-confined to main context)
-            nonisolated(unsafe) let serverForImport = await MainActor.run {
-                let context = capturedCoreDataStack.viewContext
-                return try! context.existingObject(with: capturedObjectID) as! CDServer
-            }
-            try await capturedLibraryImporter.importLibrary(
-                artists: artists,
-                albums: albums,
-                tracks: tracks,
-                for: serverForImport,
-                progressCallback: progressCallback
-            )
-            
-            // Check for cancellation
-            try Task.checkCancellation()
-            
-            await MainActor.run {
-                progressCallback(SyncProgress(progress: 0.99, stage: "Syncing playlists..."))
-            }
-            
-            // Get server for playlist sync
-            // CDServer is non-Sendable but safe here (thread-confined to main context)
-            nonisolated(unsafe) let serverForPlaylists = await MainActor.run {
-                let context = capturedCoreDataStack.viewContext
-                return try! context.existingObject(with: capturedObjectID) as! CDServer
-            }
-            try await capturedPlaylistSyncer.syncPlaylists(for: serverForPlaylists, progressCallback: progressCallback)
-            
-            await MainActor.run {
-                progressCallback(SyncProgress(progress: 1.0, stage: "Complete"))
-            }
-            
-            capturedLogger.info("Full sync completed for server: \(capturedServerName)")
         }
         
         currentSyncTask[serverId] = syncTask
-        
+
         // Wait for sync to complete and propagate errors
         do {
             try await syncTask.value
+            markSyncComplete(serverId: serverId)
         } catch is CancellationError {
+            markSyncComplete(serverId: serverId)
             logger.info("Sync cancelled for server: \(serverName)")
             throw SyncError.cancelled
         } catch {
+            markSyncComplete(serverId: serverId)
             logger.error("Sync failed for server \(serverName): \(error.localizedDescription)")
             throw error
         }
     }
-    
+
     /// Mark sync as complete
-    private func markSyncComplete(serverId: UUID) async {
+    private func markSyncComplete(serverId: UUID) {
         isSyncing[serverId] = false
         currentSyncTask[serverId] = nil
     }
@@ -187,8 +136,63 @@ actor MediaServerSyncManager {
     
     /// Syncs playlists from the media server to Core Data
     /// This is a convenience method that delegates to the playlist syncer
-    func syncPlaylists(for server: CDServer) async throws {
-        try await playlistSyncer.syncPlaylists(for: server)
+    func syncPlaylists(for serverObjectID: NSManagedObjectID) async throws {
+        try await MediaServerPlaylistSyncer.syncPlaylists(
+            for: serverObjectID,
+            apiClient: apiClient,
+            coreDataStack: coreDataStack,
+            logger: logger
+        )
+    }
+
+    /// Performs the actual synchronization work on the actor
+    private static func executeFullSync(
+        serverObjectID: NSManagedObjectID,
+        serverName: String,
+        apiClient: MediaServerAPIClient,
+        coreDataStack: CoreDataStack,
+        logger: AppLogger,
+        progressCallback: @Sendable @escaping (SyncProgress) -> Void
+    ) async throws {
+        logger.info("Starting full sync for server: \(serverName)")
+        
+        let (artists, albums, tracks) = try await MediaServerLibraryFetcher.fetchFullLibrary(
+            apiClient: apiClient,
+            logger: logger,
+            progressCallback: progressCallback
+        )
+        
+        try Task.checkCancellation()
+        
+        try await MediaServerLibraryImporter.importLibrary(
+            artists: artists,
+            albums: albums,
+            tracks: tracks,
+            serverObjectID: serverObjectID,
+            apiClient: apiClient,
+            coreDataStack: coreDataStack,
+            logger: logger,
+            progressCallback: progressCallback
+        )
+        
+        try Task.checkCancellation()
+        
+        await MainActor.run {
+            progressCallback(SyncProgress(progress: 0.99, stage: "Syncing playlists..."))
+        }
+        
+        try await MediaServerPlaylistSyncer.syncPlaylists(
+            for: serverObjectID,
+            apiClient: apiClient,
+            coreDataStack: coreDataStack,
+            logger: logger,
+            progressCallback: progressCallback
+        )
+        
+        await MainActor.run {
+            progressCallback(SyncProgress(progress: 1.0, stage: "Complete"))
+        }
+        
+        logger.info("Full sync completed for server: \(serverName)")
     }
 }
-

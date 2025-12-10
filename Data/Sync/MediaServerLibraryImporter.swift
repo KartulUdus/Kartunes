@@ -10,52 +10,46 @@ struct ExistingLibraryState {
     let genres: [String: CDGenre]
 }
 
-/// Handles importing library data into Core Data
-final class MediaServerLibraryImporter {
-    nonisolated private let apiClient: MediaServerAPIClient
-    nonisolated private let coreDataStack: CoreDataStack
-    nonisolated private let logger: AppLogger
-    
-    nonisolated init(apiClient: MediaServerAPIClient, coreDataStack: CoreDataStack, logger: AppLogger) {
-        self.apiClient = apiClient
-        self.coreDataStack = coreDataStack
-        self.logger = logger
-    }
-    
-    /// Imports library data (artists, albums, tracks) into Core Data
-    func importLibrary(
+enum MediaServerLibraryImporter {
+    static func importLibrary(
         artists: [JellyfinArtistDTO],
         albums: [JellyfinAlbumDTO],
         tracks: [JellyfinTrackDTO],
-        for server: CDServer,
-        progressCallback: @escaping (SyncProgress) -> Void
+        serverObjectID: NSManagedObjectID,
+        apiClient: MediaServerAPIClient,
+        coreDataStack: CoreDataStack,
+        logger: AppLogger,
+        progressCallback: @Sendable @escaping (SyncProgress) -> Void
     ) async throws {
         let context = coreDataStack.newBackgroundContext()
-        let serverObjectID = server.objectID
         
         try await context.perform {
-            let serverInContext = try context.existingObject(with: serverObjectID) as! CDServer
+            guard let serverInContext = try context.existingObject(with: serverObjectID) as? CDServer else {
+                logger.error("Server not found in context for importLibrary")
+                return
+            }
             
             let remoteArtistIds = Set(artists.map { $0.id })
             let remoteAlbumIds = Set(albums.map { $0.id })
             let remoteTrackIds = Set(tracks.map { $0.id })
             
-            self.logger.debug("Starting bulk sync - Remote: \(remoteArtistIds.count) artists, \(remoteAlbumIds.count) albums, \(remoteTrackIds.count) tracks")
+            logger.debug("Starting bulk sync - Remote: \(remoteArtistIds.count) artists, \(remoteAlbumIds.count) albums, \(remoteTrackIds.count) tracks")
             
             DispatchQueue.main.async {
                 progressCallback(SyncProgress(progress: 0.50, stage: "Loading existing data..."))
             }
             
-            let state = try self.fetchExistingLibraryState(
+            let state = try fetchExistingLibraryState(
                 for: serverInContext,
-                in: context
+                in: context,
+                logger: logger
             )
             
             let artistMap = ArtistSyncPhase.upsertArtists(
                 from: artists,
                 in: context,
                 server: serverInContext,
-                apiClient: self.apiClient,
+                apiClient: apiClient,
                 existing: state.artists,
                 progressCallback: progressCallback
             )
@@ -65,10 +59,10 @@ final class MediaServerLibraryImporter {
                 artists: artistMap,
                 in: context,
                 server: serverInContext,
-                apiClient: self.apiClient,
+                apiClient: apiClient,
                 existing: state.albums,
                 progressCallback: progressCallback,
-                logger: self.logger
+                logger: logger
             )
             
             let genreMap = GenreSyncPhase.upsertGenres(
@@ -87,7 +81,7 @@ final class MediaServerLibraryImporter {
                 server: serverInContext,
                 in: context,
                 progressCallback: progressCallback,
-                logger: self.logger
+                logger: logger
             )
             
             CleanupPhase.removeDeletedEntities(
@@ -96,7 +90,7 @@ final class MediaServerLibraryImporter {
                 remoteAlbumIDs: remoteAlbumIds,
                 remoteTrackIDs: remoteTrackIds,
                 in: context,
-                logger: self.logger
+                logger: logger
             )
             
             serverInContext.lastFullSync = Date()
@@ -107,16 +101,17 @@ final class MediaServerLibraryImporter {
             
             try context.save()
             
-            self.logger.info("Full sync completed successfully")
+            logger.info("Full sync completed successfully")
             let trackCount = try context.fetch(NSFetchRequest<CDTrack>(entityName: "CDTrack")).count
-            self.logger.debug("Library sync finished. Total tracks in Core Data: \(trackCount)")
+            logger.debug("Library sync finished. Total tracks in Core Data: \(trackCount)")
         }
     }
     
     /// Fetches all existing library entities for the server
-    private func fetchExistingLibraryState(
+    private static func fetchExistingLibraryState(
         for server: CDServer,
-        in context: NSManagedObjectContext
+        in context: NSManagedObjectContext,
+        logger: AppLogger
     ) throws -> ExistingLibraryState {
         // Fetch all existing artists for this server
         let existingArtistsRequest: NSFetchRequest<CDArtist> = CDArtist.fetchRequest()
@@ -171,4 +166,3 @@ final class MediaServerLibraryImporter {
         )
     }
 }
-

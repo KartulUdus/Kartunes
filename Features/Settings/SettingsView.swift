@@ -352,9 +352,8 @@ struct SettingsView: View {
         }
         
         do {
-            try await syncManager.performFullSync(for: server) { progress in
-                coordinator.syncProgress = progress.progress
-                coordinator.syncStage = progress.stage
+            try await syncManager.performFullSync(for: server) { [weak coordinator] progress in
+                coordinator?.updateSyncStatus(with: progress)
             }
             await MainActor.run {
                 coordinator.isSyncing = false
@@ -373,4 +372,3 @@ struct SettingsView: View {
         }
     }
 }
-

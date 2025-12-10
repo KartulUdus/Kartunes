@@ -1,19 +1,10 @@
-
 import Foundation
 
-/// Handles fetching library data from the media server API
-struct MediaServerLibraryFetcher {
-    nonisolated let apiClient: MediaServerAPIClient
-    nonisolated let logger: AppLogger
-    
-    nonisolated init(apiClient: MediaServerAPIClient, logger: AppLogger) {
-        self.apiClient = apiClient
-        self.logger = logger
-    }
-    
-    /// Fetches all library data (artists, albums, tracks) with progress reporting
-    func fetchFullLibrary(
-        progressCallback: @escaping (SyncProgress) -> Void
+enum MediaServerLibraryFetcher {
+    static func fetchFullLibrary(
+        apiClient: MediaServerAPIClient,
+        logger: AppLogger,
+        progressCallback: @Sendable @escaping (SyncProgress) -> Void
     ) async throws -> ([JellyfinArtistDTO], [JellyfinAlbumDTO], [JellyfinTrackDTO]) {
         await MainActor.run {
             progressCallback(SyncProgress(progress: 0.0, stage: "Fetching artists and albums..."))
@@ -23,7 +14,6 @@ struct MediaServerLibraryFetcher {
         async let albumsTask = apiClient.fetchAlbums(byArtistId: nil)
         
         let (artistDTOs, albumDTOs) = try await (artistsTask, albumsTask)
-        
         logger.info("Fetched \(artistDTOs.count) artists, \(albumDTOs.count) albums")
         
         let startTime = Date()
@@ -36,18 +26,14 @@ struct MediaServerLibraryFetcher {
         }
         
         let progressTask = Task {
-            let updateInterval = 0.3 // Update every 0.3 seconds
-            
+            let updateInterval = 0.3
             while isFetching {
                 try? await Task.sleep(nanoseconds: UInt64(updateInterval * 1_000_000_000))
-                
-                let stillFetching = isFetching
-                guard stillFetching else { break }
+                guard isFetching else { break }
                 
                 let elapsed = Date().timeIntervalSince(startTime)
                 let estimatedDuration = 60.0
                 let fetchProgress = min(0.28, 0.05 + (elapsed / estimatedDuration) * 0.23)
-                
                 await MainActor.run {
                     if isFetching {
                         progressCallback(SyncProgress(progress: fetchProgress, stage: "Fetching tracks from server..."))
@@ -57,7 +43,6 @@ struct MediaServerLibraryFetcher {
         }
         
         let trackDTOs = try await trackFetchTask.value
-        
         isFetching = false
         progressTask.cancel()
         
@@ -71,4 +56,3 @@ struct MediaServerLibraryFetcher {
         return (artistDTOs, albumDTOs, trackDTOs)
     }
 }
-

@@ -2,32 +2,24 @@
 import Foundation
 @preconcurrency import CoreData
 
-/// Handles syncing playlists from the media server to Core Data
-final class MediaServerPlaylistSyncer {
-    nonisolated private let apiClient: MediaServerAPIClient
-    nonisolated private let coreDataStack: CoreDataStack
-    nonisolated private let logger: AppLogger
-    
-    nonisolated init(apiClient: MediaServerAPIClient, coreDataStack: CoreDataStack, logger: AppLogger) {
-        self.apiClient = apiClient
-        self.coreDataStack = coreDataStack
-        self.logger = logger
-    }
-    
-    /// Syncs playlists from the media server to Core Data
-    func syncPlaylists(
-        for server: CDServer,
-        progressCallback: @escaping (SyncProgress) -> Void = { _ in }
+enum MediaServerPlaylistSyncer {
+    static func syncPlaylists(
+        for serverObjectID: NSManagedObjectID,
+        apiClient: MediaServerAPIClient,
+        coreDataStack: CoreDataStack,
+        logger: AppLogger,
+        progressCallback: @Sendable @escaping (SyncProgress) -> Void = { _ in }
     ) async throws {
-        let serverObjectID = server.objectID
         let context = coreDataStack.newBackgroundContext()
-        
         let playlistDTOs = try await apiClient.fetchPlaylists()
         
         try await context.perform {
-            let serverInContext = try context.existingObject(with: serverObjectID) as! CDServer
+            guard let serverInContext = try context.existingObject(with: serverObjectID) as? CDServer else {
+                logger.error("Server not found in context for playlist sync")
+                return
+            }
             
-            let sourceValue = self.apiClient.serverType == .jellyfin ? "jellyfin" : "emby"
+            let sourceValue = apiClient.serverType == .jellyfin ? "jellyfin" : "emby"
             let existingPlaylistsRequest: NSFetchRequest<CDPlaylist> = CDPlaylist.fetchRequest()
             existingPlaylistsRequest.predicate = NSPredicate(format: "server == %@ AND source == %@", serverInContext, sourceValue)
             let existingPlaylists = try context.fetch(existingPlaylistsRequest)
@@ -55,7 +47,7 @@ final class MediaServerPlaylistSyncer {
                 cdPlaylist.summary = dto.summary
                 cdPlaylist.ownerUserId = dto.ownerUserId
                 
-                cdPlaylist.isReadOnly = dto.isFileBased(serverType: self.apiClient.serverType)
+                cdPlaylist.isReadOnly = dto.isFileBased(serverType: apiClient.serverType)
                 
                 if cdPlaylist.createdAt == nil {
                     cdPlaylist.createdAt = Date()
@@ -70,8 +62,7 @@ final class MediaServerPlaylistSyncer {
             }
             
             try context.save()
-            self.logger.info("Synced \(playlistDTOs.count) playlists")
+            logger.info("Synced \(playlistDTOs.count) playlists")
         }
     }
 }
-
