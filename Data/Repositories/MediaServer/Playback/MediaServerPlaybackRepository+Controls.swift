@@ -7,8 +7,9 @@ extension MediaServerPlaybackRepository {
         player?.pause()
         isPaused = true
         
-        // Report pause event
-        if let itemId = currentItemId,
+        // Report pause event (skip for offline downloads)
+        if currentPlaybackContext != .offlineDownloads,
+           let itemId = currentItemId,
            let playSessionId = currentPlaySessionId,
            let mediaSourceId = currentMediaSourceId {
             let position = await getCurrentTime()
@@ -30,8 +31,9 @@ extension MediaServerPlaybackRepository {
         player?.play()
         isPaused = false
         
-        // Report resume event
-        if let itemId = currentItemId,
+        // Report resume event (skip for offline downloads)
+        if currentPlaybackContext != .offlineDownloads,
+           let itemId = currentItemId,
            let playSessionId = currentPlaySessionId,
            let mediaSourceId = currentMediaSourceId {
             let position = await getCurrentTime()
@@ -50,8 +52,9 @@ extension MediaServerPlaybackRepository {
     }
     
     func stop() async {
-        // Report stop for current track
-        if let itemId = currentItemId,
+        // Report stop for current track (skip for offline downloads)
+        if currentPlaybackContext != .offlineDownloads,
+           let itemId = currentItemId,
            let playSessionId = currentPlaySessionId,
            let mediaSourceId = currentMediaSourceId {
             let position = await getCurrentTime()
@@ -101,8 +104,9 @@ extension MediaServerPlaybackRepository {
         let cmTime = CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         await player.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero)
         
-        // Report seek event
-        if let itemId = currentItemId,
+        // Report seek event (skip for offline downloads)
+        if currentPlaybackContext != .offlineDownloads,
+           let itemId = currentItemId,
            let playSessionId = currentPlaySessionId,
            let mediaSourceId = currentMediaSourceId {
             let positionTicks = Int64(time * 10_000_000)

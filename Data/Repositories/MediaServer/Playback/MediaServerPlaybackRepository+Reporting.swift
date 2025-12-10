@@ -6,6 +6,11 @@ extension MediaServerPlaybackRepository {
         // Cancel any existing progress reporting
         progressReportingTask?.cancel()
         
+        // Don't report progress for offline downloads
+        if currentPlaybackContext == .offlineDownloads {
+            return
+        }
+        
         progressReportingTask = Task { @MainActor [weak self] in
             guard let self = self else { return }
             
@@ -17,6 +22,11 @@ extension MediaServerPlaybackRepository {
                       let itemId = self.currentItemId,
                       let playSessionId = self.currentPlaySessionId,
                       let mediaSourceId = self.currentMediaSourceId else {
+                    break
+                }
+                
+                // Don't report progress for offline downloads
+                if self.currentPlaybackContext == .offlineDownloads {
                     break
                 }
                 
@@ -36,6 +46,11 @@ extension MediaServerPlaybackRepository {
     }
     
     func reportPlaybackStart(itemId: String, playSessionId: String, playMethod: String) async {
+        // Don't report playback for offline downloads
+        if currentPlaybackContext == .offlineDownloads {
+            return
+        }
+        
         let positionTicks: Int64 = 0 // Starting at beginning
         try? await apiClient.reportPlaybackStart(
             itemId: itemId,

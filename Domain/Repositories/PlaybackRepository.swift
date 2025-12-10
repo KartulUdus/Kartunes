@@ -3,7 +3,7 @@ import Foundation
 
 protocol PlaybackRepository {
     func play(track: Track) async
-    func play(queue: [Track], startingAt index: Int) async
+    func play(queue: [Track], startingAt index: Int, context: PlaybackContext?) async
     func pause() async
     func resume() async
     func stop() async

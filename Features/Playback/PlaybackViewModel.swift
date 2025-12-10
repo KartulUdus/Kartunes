@@ -213,7 +213,7 @@ final class PlaybackViewModel: ObservableObject {
         
         // Start playback - repository will only fetch URLs for tracks that are actually played
         Task {
-            await playbackRepository.play(queue: tracks, startingAt: index)
+            await playbackRepository.play(queue: tracks, startingAt: index, context: context)
             await updateState()
         }
     }
@@ -288,7 +288,7 @@ final class PlaybackViewModel: ObservableObject {
                 currentTime = 0
                 duration = 0
                 Task {
-                    await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex)
+                    await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
                     await updateState()
                 }
             } else {
@@ -301,7 +301,7 @@ final class PlaybackViewModel: ObservableObject {
                     currentTime = 0
                     duration = 0
                     Task {
-                        await playbackRepository.play(queue: queue.tracks, startingAt: 0)
+                        await playbackRepository.play(queue: queue.tracks, startingAt: 0, context: queue.context)
                         await updateState()
                     }
                 } else {
@@ -362,7 +362,7 @@ final class PlaybackViewModel: ObservableObject {
             duration = 0 // Reset duration - will be updated when track loads
             
             Task {
-                await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex)
+                await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
                 await updateState()
             }
         }
@@ -385,7 +385,7 @@ final class PlaybackViewModel: ObservableObject {
             currentTime = 0
             duration = 0
             Task {
-                await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex)
+                await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
                 await updateState()
             }
         } else {
@@ -398,7 +398,7 @@ final class PlaybackViewModel: ObservableObject {
                 currentTime = 0
                 duration = 0
                 Task {
-                    await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex)
+                    await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
                     await updateState()
                 }
             } else {
@@ -602,7 +602,7 @@ final class PlaybackViewModel: ObservableObject {
             logger.debug("handleTrackFinished: Repeat one - restarting current track")
             currentTime = 0 // Reset time when repeating
             Task {
-                await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex)
+                await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
                 await updateState()
             }
             return
@@ -633,7 +633,7 @@ final class PlaybackViewModel: ObservableObject {
                 
                 // Start playing the next track
                 Task {
-                    await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex)
+                    await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
                     await updateState()
                 }
             }
@@ -650,7 +650,7 @@ final class PlaybackViewModel: ObservableObject {
                 queue.currentIndex = 0
                 currentTrack = queue.currentTrack
                 Task {
-                    await playbackRepository.play(queue: queue.tracks, startingAt: 0)
+                    await playbackRepository.play(queue: queue.tracks, startingAt: 0, context: queue.context)
                     await updateState()
                 }
             } else {

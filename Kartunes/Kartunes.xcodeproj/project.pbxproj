@@ -157,6 +157,9 @@
 		65D2DCAE2EE93A3900283D44 /* OSLogLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659292422EE1B25C006E1285 /* OSLogLogger.swift */; };
 		65D2DCB22EE93E1800283D44 /* SharedPlaybackState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D2DCB12EE93E1800283D44 /* SharedPlaybackState.swift */; };
 		65D2DCB32EE93E1800283D44 /* SharedPlaybackState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D2DCB12EE93E1800283D44 /* SharedPlaybackState.swift */; };
+		65D2DCB62EE94BBA00283D44 /* DownloadStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D2DCB42EE94BBA00283D44 /* DownloadStatus.swift */; };
+		65D2DCB72EE94BBA00283D44 /* OfflineDownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D2DCB52EE94BBA00283D44 /* OfflineDownloadManager.swift */; };
+		65D2DCB92EE94BD900283D44 /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D2DCB82EE94BD900283D44 /* DownloadsView.swift */; };
 		804819C862304E60B06F29D4 /* MediaServerPlaybackRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDE04A9FBA4F729B324B98 /* MediaServerPlaybackRepository.swift */; };
 		8BF7A04957474722A609C001 /* DTOImageTagHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD70E8A939B498BA7A9BB5B /* DTOImageTagHelpers.swift */; };
 		90BB4CBD49B04CAFB32467A0 /* MediaServerPlaybackRepository+Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9299255AC1246A7AC48368D /* MediaServerPlaybackRepository+Queue.swift */; };
@@ -341,6 +344,9 @@
 		65D2DCA22EE9357100283D44 /* SiriPlaybackCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiriPlaybackCoordinator.swift; sourceTree = "<group>"; };
 		65D2DCA32EE9357100283D44 /* SiriPlaybackRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiriPlaybackRequest.swift; sourceTree = "<group>"; };
 		65D2DCB12EE93E1800283D44 /* SharedPlaybackState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPlaybackState.swift; sourceTree = "<group>"; };
+		65D2DCB42EE94BBA00283D44 /* DownloadStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadStatus.swift; sourceTree = "<group>"; };
+		65D2DCB52EE94BBA00283D44 /* OfflineDownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineDownloadManager.swift; sourceTree = "<group>"; };
+		65D2DCB82EE94BD900283D44 /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
 		680293E587A7452FB7DB6C8F /* MediaServerAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerAuthRepository.swift; sourceTree = "<group>"; };
 		8BFDE04A9FBA4F729B324B98 /* MediaServerPlaybackRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerPlaybackRepository.swift; sourceTree = "<group>"; };
 		93C141B3DE6F490CB9EE304F /* MediaServerPlaybackRepository+Reporting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerPlaybackRepository+Reporting.swift"; sourceTree = "<group>"; };
@@ -475,6 +481,8 @@
 		6528C8682EDB7F2200A71C01 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				65D2DCB42EE94BBA00283D44 /* DownloadStatus.swift */,
+				65D2DCB52EE94BBA00283D44 /* OfflineDownloadManager.swift */,
 				65C2B3CF2EDF109A00034D94 /* LikedPlaylistManager.swift */,
 				6528C8652EDB7F2200A71C01 /* CoreDataExtensions.swift */,
 				6528C8662EDB7F2200A71C01 /* CoreDataHelpers.swift */,
@@ -594,6 +602,7 @@
 		6528C88F2EDB7F2200A71C01 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				65D2DCB82EE94BD900283D44 /* DownloadsView.swift */,
 				65C2B3CB2EDEF63700034D94 /* GenreDetailView.swift */,
 				65C2B3CC2EDEF63700034D94 /* GenresView.swift */,
 				65C2B3C72EDE4C0600034D94 /* AddToPlaylistSheet.swift */,
@@ -1091,6 +1100,8 @@
 				6528C8B72EDB7F2200A71C01 /* ShuffleByArtistUseCase.swift in Sources */,
 				6528C8B82EDB7F2200A71C01 /* SearchView.swift in Sources */,
 				6528C8B92EDB7F2200A71C01 /* FetchLibraryOverviewUseCase.swift in Sources */,
+				65D2DCB62EE94BBA00283D44 /* DownloadStatus.swift in Sources */,
+				65D2DCB72EE94BBA00283D44 /* OfflineDownloadManager.swift in Sources */,
 				659290A12EE06CB1006E1285 /* MediaServerLibraryRepository+Search.swift in Sources */,
 				659290A22EE06CB1006E1285 /* MediaServerLibraryRepository.swift in Sources */,
 				659290A32EE06CB1006E1285 /* MediaServerLibraryRepository+Sync.swift in Sources */,
@@ -1099,6 +1110,7 @@
 				659290A62EE06CB1006E1285 /* MediaServerLibraryRepository+Browsing.swift in Sources */,
 				6528C8BB2EDB7F2200A71C01 /* SortingMenu.swift in Sources */,
 				65C2B3D42EDF7E0100034D94 /* MediaServerAPIClient.swift in Sources */,
+				65D2DCB92EE94BD900283D44 /* DownloadsView.swift in Sources */,
 				65C2B3D62EDF7E0100034D94 /* MediaServerAPIClientFactory.swift in Sources */,
 				6528C8DF2EDB944600A71C01 /* AppTheme.swift in Sources */,
 				6528C8BC2EDB7F2200A71C01 /* SearchResults.swift in Sources */,

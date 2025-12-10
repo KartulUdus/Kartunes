@@ -63,6 +63,18 @@ struct LibraryMenuView: View {
                 }
                 .padding(.vertical, 8)
             }
+            
+            NavigationLink(value: LibraryCategory.downloads) {
+                HStack {
+                    Image(systemName: "tray.and.arrow.down")
+                        .font(.title2)
+                        .foregroundColor(.blue)
+                        .frame(width: 40)
+                    Text("Downloads")
+                        .font(.headline)
+                }
+                .padding(.vertical, 8)
+            }
         }
         .scrollContentBackground(.hidden)
         .background(Color("AppBackground"))
@@ -76,5 +88,6 @@ enum LibraryCategory: Hashable {
     case artists
     case playlists
     case genres
+    case downloads
 }
 

@@ -48,7 +48,8 @@ final class CarPlayLibraryBuilder {
             buildGenresItem(),
             buildArtistsItem(),
             buildAlbumsItem(),
-            buildSongsItem()
+            buildSongsItem(),
+            buildDownloadsItem()
         ]
         
         let section = CPListSection(items: items, header: nil, sectionIndexTitle: nil)
@@ -159,6 +160,89 @@ final class CarPlayLibraryBuilder {
         }
         
         return item
+    }
+    
+    private func buildDownloadsItem() -> CPListItem {
+        let item = CPListItem(text: "Downloads", detailText: nil)
+        
+        item.handler = { [weak self] _, completion in
+            Task { @MainActor [weak self] in
+                guard let self = self else {
+                    completion()
+                    return
+                }
+                
+                await self.showDownloads()
+                completion()
+            }
+        }
+        
+        return item
+    }
+    
+    private func showDownloads() async {
+        guard let serverId = AppCoordinator.shared?.activeServer?.id else { return }
+        
+        let context = CoreDataStack.shared.viewContext
+        let allDownloadedIds = Set(OfflineDownloadManager.shared.getAllDownloadedTrackIds())
+        
+        let tracks: [Track] = await context.perform {
+            let serverRequest: NSFetchRequest<CDServer> = CDServer.fetchRequest()
+            serverRequest.predicate = NSPredicate(format: "id == %@", serverId as CVarArg)
+            serverRequest.fetchLimit = 1
+            
+            guard let server = try? context.fetch(serverRequest).first else {
+                return []
+            }
+            
+            let trackRequest: NSFetchRequest<CDTrack> = CDTrack.fetchRequest()
+            trackRequest.predicate = NSPredicate(format: "server == %@ AND id IN %@", server, allDownloadedIds)
+            
+            guard let cdTracks = try? context.fetch(trackRequest) else {
+                return []
+            }
+            
+            return cdTracks.map { cdTrack in
+                CoreDataTrackHelper.toDomain(cdTrack, serverId: serverId)
+            }
+        }
+        
+        guard !tracks.isEmpty else {
+            let errorItem = CPListItem(
+                text: "No downloads",
+                detailText: "Download tracks to listen offline"
+            )
+            let section = CPListSection(items: [errorItem], header: nil, sectionIndexTitle: nil)
+            let template = CPListTemplate(title: "Downloads", sections: [section])
+            interfaceController?.pushTemplate(template, animated: true) { _, _ in }
+            return
+        }
+        
+        let sortedTracks = tracks.sorted { $0.title.localizedCompare($1.title) == .orderedAscending }
+        
+        let items = sortedTracks.map { track -> CPListItem in
+            let item = CPListItem(
+                text: track.title,
+                detailText: "\(track.artistName) - \(track.albumTitle ?? "Unknown Album")"
+            )
+            
+            item.handler = { [weak self] _, completion in
+                Task { @MainActor [weak self] in
+                    guard let self = self else {
+                        completion()
+                        return
+                    }
+                    await self.playTrack(track: track, from: sortedTracks)
+                    completion()
+                }
+            }
+            
+            return item
+        }
+        
+        let section = CPListSection(items: items, header: "Downloads", sectionIndexTitle: nil)
+        let template = CPListTemplate(title: "Downloads", sections: [section])
+        interfaceController?.pushTemplate(template, animated: true) { _, _ in }
     }
     
     private func createAlphabeticalSections<T>(

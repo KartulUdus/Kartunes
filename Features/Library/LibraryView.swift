@@ -24,6 +24,9 @@ struct LibraryView: View {
                     case .genres:
                         GenresView()
                             .environmentObject(coordinator)
+                    case .downloads:
+                        DownloadsView()
+                            .environmentObject(coordinator)
                     }
                 }
         }

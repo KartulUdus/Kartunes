@@ -69,27 +69,29 @@ extension MediaServerPlaybackRepository {
         // This prevents double-advancement and ensures queue state stays in sync
         logger.info("Playback: track finished, ViewModel will handle queue advancement")
         
-        // Report stop for finished track
-        let itemId = currentItemId
-        let playSessionId = currentPlaySessionId
-        let mediaSourceId = currentMediaSourceId
-        
-        Task { @MainActor [weak self] in
-            guard let self = self,
-                  let itemId = itemId,
-                  let playSessionId = playSessionId,
-                  let mediaSourceId = mediaSourceId else { return }
+        // Report stop for finished track (skip for offline downloads)
+        if currentPlaybackContext != .offlineDownloads {
+            let itemId = currentItemId
+            let playSessionId = currentPlaySessionId
+            let mediaSourceId = currentMediaSourceId
             
-            // Get duration for final position
-            let duration = await self.getDuration() ?? 0
-            let positionTicks = Int64(duration * 10_000_000)
-            try? await self.apiClient.reportPlaybackStopped(
-                itemId: itemId,
-                mediaSourceId: mediaSourceId,
-                playSessionId: playSessionId,
-                positionTicks: positionTicks,
-                nextMediaType: "Audio"
-            )
+            Task { @MainActor [weak self] in
+                guard let self = self,
+                      let itemId = itemId,
+                      let playSessionId = playSessionId,
+                      let mediaSourceId = mediaSourceId else { return }
+                
+                // Get duration for final position
+                let duration = await self.getDuration() ?? 0
+                let positionTicks = Int64(duration * 10_000_000)
+                try? await self.apiClient.reportPlaybackStopped(
+                    itemId: itemId,
+                    mediaSourceId: mediaSourceId,
+                    playSessionId: playSessionId,
+                    positionTicks: positionTicks,
+                    nextMediaType: "Audio"
+                )
+            }
         }
         
         // Cancel progress reporting for this track

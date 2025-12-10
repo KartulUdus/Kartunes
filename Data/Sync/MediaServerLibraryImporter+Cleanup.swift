@@ -39,6 +39,19 @@ enum CleanupPhase {
         }
         if !tracksToDelete.isEmpty {
             logger.info("Deleting \(tracksToDelete.count) tracks")
+            
+            // Clean up downloads for deleted tracks
+            let deletedTrackIds = Set(tracksToDelete.compactMap { $0.id })
+            Task { @MainActor in
+                for trackId in deletedTrackIds {
+                    do {
+                        try OfflineDownloadManager.shared.deleteDownload(for: trackId)
+                    } catch {
+                        logger.warning("Failed to delete download for track \(trackId): \(error.localizedDescription)")
+                    }
+                }
+            }
+            
             for track in tracksToDelete {
                 context.delete(track)
             }

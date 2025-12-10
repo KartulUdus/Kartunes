@@ -128,6 +128,9 @@ struct SongsView: View {
                         } label: {
                             Label("Add to Playlist", systemImage: "plus.circle")
                         }
+                        
+                        // Download/Remove download button
+                        downloadButton(for: track)
                     })
                 }
             } else {
@@ -211,6 +214,51 @@ struct SongsView: View {
         if !playlistsLoaded {
             await loadPlaylists()
             playlistsLoaded = true
+        }
+    }
+    
+    @ViewBuilder
+    private func downloadButton(for track: Track) -> some View {
+        let status = DownloadStatusManager.getStatus(for: track.id)
+        let isDownloaded = OfflineDownloadManager.shared.isDownloaded(trackId: track.id)
+        
+        if status == .downloading || status == .queued {
+            Button {
+                OfflineDownloadManager.shared.cancelDownload(for: track.id)
+            } label: {
+                Label("Cancel Download", systemImage: "xmark.circle")
+            }
+        } else if status == .downloaded || isDownloaded {
+            Button(role: .destructive) {
+                Task {
+                    do {
+                        try OfflineDownloadManager.shared.deleteDownload(for: track.id)
+                    } catch {
+                        // Handle error
+                    }
+                }
+            } label: {
+                Label("Remove Download", systemImage: "trash")
+            }
+        } else {
+            Button {
+                Task {
+                    guard let apiClient = coordinator.apiClient else { return }
+                    await OfflineDownloadManager.shared.startDownload(
+                        for: track,
+                        apiClient: apiClient,
+                        progressCallback: { progress in
+                            NotificationCenter.default.post(
+                                name: .downloadProgress,
+                                object: nil,
+                                userInfo: ["trackId": track.id, "progress": progress]
+                            )
+                        }
+                    )
+                }
+            } label: {
+                Label("Download Offline", systemImage: "arrow.down.circle")
+            }
         }
     }
 }

@@ -4,12 +4,14 @@ import AVFoundation
 
 extension MediaServerPlaybackRepository {
     func play(track: Track) async {
-        await play(queue: [track], startingAt: 0)
+        await play(queue: [track], startingAt: 0, context: nil)
     }
     
-    func play(queue: [Track], startingAt index: Int) async {
+    func play(queue: [Track], startingAt index: Int, context: PlaybackContext? = nil) async {
         // Stop previous track reporting if switching tracks
-        if let previousItemId = currentItemId,
+        // Don't report for offline downloads
+        if currentPlaybackContext != .offlineDownloads,
+           let previousItemId = currentItemId,
            let previousPlaySessionId = currentPlaySessionId,
            let previousMediaSourceId = currentMediaSourceId {
             // Report stop for previous track
@@ -36,6 +38,7 @@ extension MediaServerPlaybackRepository {
         
         currentQueue = queue
         currentIndex = index
+        currentPlaybackContext = context
         loadedItems.removeAll()
         guard index < queue.count else { return }
         
@@ -89,20 +92,28 @@ extension MediaServerPlaybackRepository {
             let trackIndex = index + offset
             loadedItems.insert(trackIndex)
             
-            // Build stream URL - prefer direct streaming when available (like FinAmp)
-            // For Emby, always rebuild URLs to ensure we use direct streaming (HLS returns 400)
-            // For Jellyfin, use cached URL if available, otherwise build new one
+            // Check if we should use local file (for offline downloads)
             let url: URL
-            if apiClient.serverType == .emby {
-                // Always rebuild for Emby to ensure direct streaming (ignore cached HLS URLs)
-                url = await apiClient.buildStreamURL(forTrackId: track.id, useDirectStream: true)
-            } else if let existingStreamUrl = track.streamUrl {
-                // For Jellyfin, use cached URL if available
-                url = existingStreamUrl
+            if currentPlaybackContext == .offlineDownloads,
+               OfflineDownloadManager.shared.isDownloaded(trackId: track.id) {
+                // Use local file for offline downloads
+                url = OfflineDownloadManager.shared.localFileURL(for: track.id)
+                logger.debug("Playback: using local file for offline track \(trackIndex): \(track.title)")
             } else {
-                // Try to use direct streaming first (more efficient, faster startup)
-                // Falls back to HLS transcoding if direct streaming isn't available
-                url = await apiClient.buildStreamURL(forTrackId: track.id, useDirectStream: true)
+                // Build stream URL - prefer direct streaming when available (like FinAmp)
+                // For Emby, always rebuild URLs to ensure we use direct streaming (HLS returns 400)
+                // For Jellyfin, use cached URL if available, otherwise build new one
+                if apiClient.serverType == .emby {
+                    // Always rebuild for Emby to ensure direct streaming (ignore cached HLS URLs)
+                    url = await apiClient.buildStreamURL(forTrackId: track.id, useDirectStream: true)
+                } else if let existingStreamUrl = track.streamUrl {
+                    // For Jellyfin, use cached URL if available
+                    url = existingStreamUrl
+                } else {
+                    // Try to use direct streaming first (more efficient, faster startup)
+                    // Falls back to HLS transcoding if direct streaming isn't available
+                    url = await apiClient.buildStreamURL(forTrackId: track.id, useDirectStream: true)
+                }
             }
             
             logger.debug("Playback: loaded stream URL for track \(trackIndex): \(track.title)")

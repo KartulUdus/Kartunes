@@ -24,6 +24,9 @@ final class MediaServerPlaybackRepository: NSObject, PlaybackRepository {
     var progressReportingTask: Task<Void, Never>?
     var isPaused: Bool = false
     
+    // Current playback context (for determining if we should use local files)
+    var currentPlaybackContext: PlaybackContext?
+    
     // Callback for handling track not found (404) errors
     var onTrackNotFound: ((String) async -> Void)? // trackId
     

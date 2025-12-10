@@ -29,6 +29,9 @@ final class AppCoordinator: ObservableObject {
     private(set) var playbackRepository: PlaybackRepository
     let preferencesRepository: PreferencesRepository
     
+    // API Client (for downloads, etc.)
+    private(set) var apiClient: MediaServerAPIClient?
+    
     // Sync Manager (will be recreated when server changes)
     private(set) var syncManager: MediaServerSyncManager?
     
@@ -235,6 +238,7 @@ final class AppCoordinator: ObservableObject {
         
         // Create API client with server credentials using factory
         let apiClient = MediaServerAPIClientFactory.createClient(for: server)
+        self.apiClient = apiClient
         
         // Recreate repositories with new API client and server ID
         self.authRepository = MediaServerAuthRepository(apiClient: apiClient)

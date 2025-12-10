@@ -10,7 +10,7 @@ struct ShuffleByArtistUseCase {
         let filteredTracks = tracks.filter { $0.artistName == artistId }
         let shuffled = filteredTracks.shuffled()
         if let firstIdx = shuffled.indices.first {
-            await playbackRepository.play(queue: shuffled, startingAt: firstIdx)
+            await playbackRepository.play(queue: shuffled, startingAt: firstIdx, context: .artist(artistId: artistId))
         }
     }
 }

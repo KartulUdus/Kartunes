@@ -111,6 +111,12 @@ final class MediaServerAuthRepository: AuthRepository {
                 return
             }
             
+            // Get all track IDs for this server before deletion
+            let trackRequest: NSFetchRequest<CDTrack> = CDTrack.fetchRequest()
+            trackRequest.predicate = NSPredicate(format: "server == %@", cdServer)
+            let serverTracks = (try? context.fetch(trackRequest)) ?? []
+            let trackIds = Set(serverTracks.compactMap { $0.id })
+            
             // Delete the server and all related data (tracks, albums, artists, genres, playlists)
             // CoreData will cascade delete all related entities due to deletionRule="Cascade"
             let serverName = cdServer.name ?? "Unknown"
@@ -119,6 +125,12 @@ final class MediaServerAuthRepository: AuthRepository {
             
             try context.save()
             self.logger.info("Auth: deleted server and related data")
+            
+            // Clean up downloads for all tracks from this server
+            Task { @MainActor in
+                OfflineDownloadManager.shared.cleanupDownloads(for: trackIds)
+                self.logger.info("Auth: cleaned up downloads for deleted server")
+            }
         }
     }
     
