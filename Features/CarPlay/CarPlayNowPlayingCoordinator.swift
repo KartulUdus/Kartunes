@@ -253,71 +253,94 @@ final class CarPlayNowPlayingCoordinator {
     
     private func updateNowPlayingInfo(for track: Track?) {
         guard let track = track else {
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+            Task {
+                await NowPlayingInfoManager.shared.clear()
+            }
             return
         }
         
-        let existingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
-        let existingTitle = existingInfo?[MPMediaItemPropertyTitle] as? String
-        let existingArtist = existingInfo?[MPMediaItemPropertyArtist] as? String
-        let isSameTrack = existingTitle == track.title && existingArtist == track.artistName
+        let queueCount = playbackViewModel.queue.count
+        let queueIndex = playbackViewModel.getCurrentQueueIndex()
         
-        var nowPlayingInfo: [String: Any] = [
-            MPMediaItemPropertyTitle: track.title,
-            MPMediaItemPropertyArtist: track.artistName,
-            MPNowPlayingInfoPropertyPlaybackRate: playbackViewModel.isPlaying ? 1.0 : 0.0
-        ]
-        
-        if let albumTitle = track.albumTitle {
-            nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = albumTitle
-        }
-        
-        if playbackViewModel.duration > 0 {
-            nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playbackViewModel.duration
-        }
-        
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playbackViewModel.currentTime
-        
-        if isSameTrack, let existingArtwork = existingInfo?[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
-            nowPlayingInfo[MPMediaItemPropertyArtwork] = existingArtwork
-        }
-        
-        if !isSameTrack || existingInfo?[MPMediaItemPropertyArtwork] == nil {
-            Task {
-                if let artwork = await loadArtwork(for: track) {
-                    await MainActor.run {
-                        var updatedInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-                        updatedInfo[MPMediaItemPropertyArtwork] = artwork
-                        updatedInfo[MPMediaItemPropertyTitle] = track.title
-                        updatedInfo[MPMediaItemPropertyArtist] = track.artistName
-                        if let albumTitle = track.albumTitle {
-                            updatedInfo[MPMediaItemPropertyAlbumTitle] = albumTitle
-                        }
-                        MPNowPlayingInfoCenter.default().nowPlayingInfo = updatedInfo
+        // Update track info through centralized manager
+        Task {
+            let _ = await NowPlayingInfoManager.shared.updateTrack(
+                track: track,
+                isPlaying: playbackViewModel.isPlaying,
+                currentTime: playbackViewModel.currentTime,
+                duration: playbackViewModel.duration,
+                queueCount: queueCount,
+                queueIndex: queueIndex
+            )
+            
+            // Check if we need to load artwork
+            let cachedArtwork = await NowPlayingInfoManager.shared.getCachedArtwork(trackId: track.id)
+            if cachedArtwork == nil {
+                // Load artwork asynchronously
+                let requestId = await NowPlayingInfoManager.shared.getArtworkRequestId()
+                let loadingTrackId = track.id
+                
+                if let artwork = await loadArtwork(for: track, requestId: requestId, trackId: loadingTrackId) {
+                    // Update artwork through centralized manager
+                    let applied = await NowPlayingInfoManager.shared.updateArtwork(
+                        artwork: artwork,
+                        trackId: loadingTrackId,
+                        artworkRequestId: requestId
+                    )
+                    if !applied {
+                        logger.debug("Artwork update rejected - track or request changed")
                     }
                 }
             }
         }
-        
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
     
     private func updatePlaybackState(isPlaying: Bool) {
-        var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-        info[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+        let trackId = playbackViewModel.currentTrack?.id
+        let currentTime = playbackViewModel.currentTime
+        
+        Task {
+            let applied = await NowPlayingInfoManager.shared.updatePlaybackState(
+                isPlaying: isPlaying,
+                currentTime: currentTime,
+                trackId: trackId
+            )
+            if !applied {
+                // Track changed, trigger full update
+                if let track = playbackViewModel.currentTrack {
+                    updateNowPlayingInfo(for: track)
+                }
+            }
+        }
     }
     
     private func updatePlaybackTime() {
-        var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-        info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playbackViewModel.currentTime
-        if playbackViewModel.duration > 0 {
-            info[MPMediaItemPropertyPlaybackDuration] = playbackViewModel.duration
+        let trackId = playbackViewModel.currentTrack?.id
+        let currentTime = playbackViewModel.currentTime
+        let duration = playbackViewModel.duration
+        
+        Task {
+            let applied = await NowPlayingInfoManager.shared.updatePlaybackTime(
+                currentTime: currentTime,
+                duration: duration,
+                trackId: trackId
+            )
+            if !applied {
+                // Track changed, ignore time update
+            }
         }
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
     
-    private func loadArtwork(for track: Track) async -> MPMediaItemArtwork? {
+    private func loadArtwork(for track: Track, requestId: Int, trackId: String) async -> MPMediaItemArtwork? {
+        // Check if request is still valid via centralized manager
+        let currentTrackId = await NowPlayingInfoManager.shared.getCurrentTrackId()
+        guard currentTrackId == trackId else { return nil }
+        
+        // Check cache first
+        if let cached = await NowPlayingInfoManager.shared.getCachedArtwork(trackId: track.id) {
+            return cached
+        }
+        
         let imageURL: URL? = {
             if let url = playbackViewModel.buildTrackImageURL(trackId: track.id, albumId: track.albumId) {
                 return url
@@ -333,16 +356,20 @@ final class CarPlayNowPlayingCoordinator {
             return nil
         }
         
-        return await loadArtwork(from: imageURL)
+        return await loadArtwork(from: imageURL, requestId: requestId, trackId: trackId)
     }
     
-    private func loadArtwork(from url: URL) async -> MPMediaItemArtwork? {
+    private func loadArtwork(from url: URL, requestId: Int, trackId: String) async -> MPMediaItemArtwork? {
         do {
             var request = URLRequest(url: url)
             request.cachePolicy = .returnCacheDataElseLoad
             request.timeoutInterval = 10.0
             
             let (data, response) = try await URLSession.shared.data(for: request)
+            
+            // Check if request is still valid before processing
+            let currentTrackId = await NowPlayingInfoManager.shared.getCurrentTrackId()
+            guard currentTrackId == trackId else { return nil }
             
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
                 return nil
@@ -351,6 +378,10 @@ final class CarPlayNowPlayingCoordinator {
             guard let image = UIImage(data: data) else {
                 return nil
             }
+            
+            // Final check before returning
+            let finalTrackId = await NowPlayingInfoManager.shared.getCurrentTrackId()
+            guard finalTrackId == trackId else { return nil }
             
             return MPMediaItemArtwork(boundsSize: image.size) { _ in
                 return image
@@ -467,14 +498,64 @@ final class CarPlayNowPlayingCoordinator {
     private func toggleFavourite() async {
         guard let track = playbackViewModel.currentTrack else { return }
         
+        // Optimistic update
+        let newLikedState = !track.isLiked
+        FavoritesStore.shared.setLiked(track.id, newLikedState)
+        
+        // Create updated track with new liked state
+        let updatedTrack = Track(
+            id: track.id,
+            title: track.title,
+            albumId: track.albumId,
+            albumTitle: track.albumTitle,
+            artistName: track.artistName,
+            duration: track.duration,
+            trackNumber: track.trackNumber,
+            discNumber: track.discNumber,
+            dateAdded: track.dateAdded,
+            playCount: track.playCount,
+            isLiked: newLikedState,
+            streamUrl: track.streamUrl,
+            serverId: track.serverId
+        )
+        playbackViewModel.currentTrack = updatedTrack
+        
         do {
-            let updatedTrack = try await playbackRepository.toggleLike(track: track)
-            if playbackViewModel.currentTrack?.id == updatedTrack.id {
-                playbackViewModel.currentTrack = updatedTrack
+            let serverUpdatedTrack = try await playbackRepository.toggleLike(track: track)
+            
+            // Reconcile with server state
+            await MainActor.run {
+                FavoritesStore.shared.updateAfterAPICall(trackId: serverUpdatedTrack.id, isLiked: serverUpdatedTrack.isLiked, serverId: serverUpdatedTrack.serverId)
+                
+                if playbackViewModel.currentTrack?.id == serverUpdatedTrack.id {
+                    playbackViewModel.currentTrack = serverUpdatedTrack
+                }
             }
-            await updateLikedPlaylist(track: updatedTrack, isNowLiked: updatedTrack.isLiked)
+            
+            await updateLikedPlaylist(track: serverUpdatedTrack, isNowLiked: serverUpdatedTrack.isLiked)
         } catch {
             logger.error("Failed to toggle favourite: \(error.localizedDescription)")
+            // Revert optimistic update
+            await MainActor.run {
+                FavoritesStore.shared.setLiked(track.id, !newLikedState)
+                // Revert to original track state
+                let revertedTrack = Track(
+                    id: track.id,
+                    title: track.title,
+                    albumId: track.albumId,
+                    albumTitle: track.albumTitle,
+                    artistName: track.artistName,
+                    duration: track.duration,
+                    trackNumber: track.trackNumber,
+                    discNumber: track.discNumber,
+                    dateAdded: track.dateAdded,
+                    playCount: track.playCount,
+                    isLiked: !newLikedState,
+                    streamUrl: track.streamUrl,
+                    serverId: track.serverId
+                )
+                playbackViewModel.currentTrack = revertedTrack
+            }
         }
     }
     
@@ -516,20 +597,12 @@ final class CarPlayNowPlayingCoordinator {
     private func startRadio() async {
         guard let track = playbackViewModel.currentTrack else { return }
         
-        do {
-            let tracks = try await playbackRepository.generateInstantMix(
-                from: track.id,
-                kind: .song,
-                serverId: track.serverId
-            )
-            
-            guard !tracks.isEmpty else { return }
-            
-            // Replace queue and start playing
-            playbackViewModel.startQueue(from: tracks, at: 0, context: .instantMix(seedItemId: track.id))
-        } catch {
-            logger.error("Failed to start radio: \(error.localizedDescription)")
-        }
+        // Use the centralized startInstantMix method to ensure single actor and prevent duplicate queues
+        playbackViewModel.startInstantMix(
+            from: track.id,
+            kind: .song,
+            serverId: track.serverId
+        )
     }
 }
 

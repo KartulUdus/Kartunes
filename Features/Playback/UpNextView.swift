@@ -28,7 +28,7 @@ struct UpNextView: View {
                         Button(action: {
                             UIImpactFeedbackGenerator.medium()
                             // Skip to this track
-                            // Find the track's index in the original queue
+                            // Find the track's index in the queue (works for both shuffled and normal)
                             if let queueIndex = viewModel.queue.firstIndex(where: { $0.id == track.id }) {
                                 viewModel.skipTo(index: queueIndex)
                             }

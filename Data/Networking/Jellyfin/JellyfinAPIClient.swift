@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - Protocol
 
-protocol JellyfinAPIClient: MediaServerAPIClient {
+nonisolated protocol JellyfinAPIClient: MediaServerAPIClient {
     var accessToken: String? { get }
     var userId: String? { get }
     

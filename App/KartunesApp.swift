@@ -2,6 +2,7 @@
 import SwiftUI
 import CoreData
 import UIKit
+import Intents
 
 @main
 struct KartunesApp: App {
@@ -25,6 +26,22 @@ struct KartunesApp: App {
         } else {
             logger.warning("CarPlaySceneDelegate class NOT found - check Info.plist configuration")
             NSLog("CarPlay: WARNING - CarPlaySceneDelegate class NOT found!")
+        }
+        
+        // Request Siri authorization
+        INPreferences.requestSiriAuthorization { status in
+            switch status {
+            case .authorized:
+                NSLog("Siri: Authorization granted")
+            case .denied:
+                NSLog("Siri: Authorization denied")
+            case .restricted:
+                NSLog("Siri: Authorization restricted")
+            case .notDetermined:
+                NSLog("Siri: Authorization not determined")
+            @unknown default:
+                NSLog("Siri: Unknown authorization status")
+            }
         }
     }
 

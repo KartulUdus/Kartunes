@@ -4,11 +4,11 @@ import Foundation
 
 /// Handles syncing playlists from the media server to Core Data
 final class MediaServerPlaylistSyncer {
-    private let apiClient: MediaServerAPIClient
-    private let coreDataStack: CoreDataStack
-    private let logger: AppLogger
+    nonisolated private let apiClient: MediaServerAPIClient
+    nonisolated private let coreDataStack: CoreDataStack
+    nonisolated private let logger: AppLogger
     
-    init(apiClient: MediaServerAPIClient, coreDataStack: CoreDataStack, logger: AppLogger = Log.make(.sync)) {
+    nonisolated init(apiClient: MediaServerAPIClient, coreDataStack: CoreDataStack, logger: AppLogger) {
         self.apiClient = apiClient
         self.coreDataStack = coreDataStack
         self.logger = logger

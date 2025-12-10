@@ -3,10 +3,20 @@ import Foundation
 
 // MARK: - Implementation
 
-final class DefaultEmbyAPIClient: EmbyAPIClient {
+nonisolated final class DefaultEmbyAPIClient: EmbyAPIClient {
     let baseURL: URL
-    private(set) var accessToken: String?
-    private(set) var userId: String?
+    private var _accessToken: String?
+    private var _userId: String?
+    private let credentialQueue = DispatchQueue(label: "com.kartunes.emby.credentials", attributes: .concurrent)
+    
+    var accessToken: String? {
+        credentialQueue.sync { _accessToken }
+    }
+    
+    var userId: String? {
+        credentialQueue.sync { _userId }
+    }
+    
     let httpClient: HTTPClient
     let deviceId: String
     let serverType: MediaServerType = .emby
@@ -14,8 +24,8 @@ final class DefaultEmbyAPIClient: EmbyAPIClient {
     
     init(baseURL: URL, accessToken: String? = nil, userId: String? = nil, httpClient: HTTPClient = DefaultHTTPClient(), logger: AppLogger = Log.make(.networking)) {
         self.baseURL = baseURL
-        self.accessToken = accessToken
-        self.userId = userId
+        self._accessToken = accessToken
+        self._userId = userId
         self.httpClient = httpClient
         self.logger = logger
         
@@ -31,8 +41,10 @@ final class DefaultEmbyAPIClient: EmbyAPIClient {
     }
     
     func updateCredentials(accessToken: String, userId: String) {
-        self.accessToken = accessToken
-        self.userId = userId
+        credentialQueue.async(flags: .barrier) {
+            self._accessToken = accessToken
+            self._userId = userId
+        }
     }
 }
 

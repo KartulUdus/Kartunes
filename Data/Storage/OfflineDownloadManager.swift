@@ -8,9 +8,96 @@ import CoreData
     
     private let logger = Log.make(.storage)
     private var downloadSession: URLSession!
-    private var activeDownloads: [String: URLSessionDownloadTask] = [:]
-    private var downloadProgress: [String: Double] = [:]
-    private var progressCallbacks: [String: (Double) -> Void] = [:]
+    
+    // Thread-safe dictionary access via serial queue
+    private var _activeDownloads: [String: URLSessionDownloadTask] = [:]
+    private var _downloadProgress: [String: Double] = [:]
+    private var _progressCallbacks: [String: (Double) -> Void] = [:]
+    private let dictionaryQueue = DispatchQueue(label: "com.kartunes.downloads.dictionaries", attributes: .concurrent)
+    
+    private var activeDownloads: [String: URLSessionDownloadTask] {
+        get { dictionaryQueue.sync { _activeDownloads } }
+        set { dictionaryQueue.async(flags: .barrier) { self._activeDownloads = newValue } }
+    }
+    
+    private var downloadProgress: [String: Double] {
+        get { dictionaryQueue.sync { _downloadProgress } }
+        set { dictionaryQueue.async(flags: .barrier) { self._downloadProgress = newValue } }
+    }
+    
+    private var progressCallbacks: [String: (Double) -> Void] {
+        get { dictionaryQueue.sync { _progressCallbacks } }
+        set { dictionaryQueue.async(flags: .barrier) { self._progressCallbacks = newValue } }
+    }
+    
+    // Thread-safe dictionary access methods
+    private func getActiveDownload(_ key: String) -> URLSessionDownloadTask? {
+        dictionaryQueue.sync { _activeDownloads[key] }
+    }
+    
+    private func setActiveDownload(_ key: String, _ value: URLSessionDownloadTask?) {
+        dictionaryQueue.async(flags: .barrier) {
+            if let value = value {
+                self._activeDownloads[key] = value
+            } else {
+                self._activeDownloads.removeValue(forKey: key)
+            }
+        }
+    }
+    
+    private func getDownloadProgress(_ key: String) -> Double? {
+        dictionaryQueue.sync { _downloadProgress[key] }
+    }
+    
+    private func setDownloadProgress(_ key: String, _ value: Double?) {
+        dictionaryQueue.async(flags: .barrier) {
+            if let value = value {
+                self._downloadProgress[key] = value
+            } else {
+                self._downloadProgress.removeValue(forKey: key)
+            }
+        }
+    }
+    
+    private func getProgressCallback(_ key: String) -> ((Double) -> Void)? {
+        dictionaryQueue.sync { _progressCallbacks[key] }
+    }
+    
+    private func setProgressCallback(_ key: String, _ value: ((Double) -> Void)?) {
+        dictionaryQueue.async(flags: .barrier) {
+            if let value = value {
+                self._progressCallbacks[key] = value
+            } else {
+                self._progressCallbacks.removeValue(forKey: key)
+            }
+        }
+    }
+    
+    private func removeActiveDownload(_ key: String) {
+        dictionaryQueue.async(flags: .barrier) {
+            self._activeDownloads.removeValue(forKey: key)
+        }
+    }
+    
+    private func removeDownloadProgress(_ key: String) {
+        dictionaryQueue.async(flags: .barrier) {
+            self._downloadProgress.removeValue(forKey: key)
+        }
+    }
+    
+    private func removeProgressCallback(_ key: String) {
+        dictionaryQueue.async(flags: .barrier) {
+            self._progressCallbacks.removeValue(forKey: key)
+        }
+    }
+    
+    private func removeAllDownloadData(_ key: String) {
+        dictionaryQueue.async(flags: .barrier) {
+            self._activeDownloads.removeValue(forKey: key)
+            self._downloadProgress.removeValue(forKey: key)
+            self._progressCallbacks.removeValue(forKey: key)
+        }
+    }
     
     private let downloadsDirectory: URL
     
@@ -71,7 +158,7 @@ import CoreData
         let trackId = track.id
         
         // Check if already downloading
-        if activeDownloads[trackId] != nil {
+        if getActiveDownload(trackId) != nil {
             logger.warning("Download already in progress for track: \(trackId)")
             return
         }
@@ -98,7 +185,7 @@ import CoreData
         
         // Set status to queued, then downloading
         DownloadStatusManager.setStatus(.queued, for: trackId)
-        progressCallbacks[trackId] = progressCallback
+        setProgressCallback(trackId, progressCallback)
         
         // Create download request with proper headers
         var request = URLRequest(url: downloadURL)
@@ -140,9 +227,9 @@ import CoreData
         
         // Create download task
         let task = downloadSession.downloadTask(with: request)
-        activeDownloads[trackId] = task
+        setActiveDownload(trackId, task)
         DownloadStatusManager.setStatus(.downloading, for: trackId)
-        downloadProgress[trackId] = 0.0
+        setDownloadProgress(trackId, 0.0)
         
         logger.debug("Download task created for track \(trackId), resuming...")
         
@@ -177,8 +264,8 @@ import CoreData
                     
                     // Manually update progress if delegate isn't being called
                     await MainActor.run {
-                        downloadProgress[trackId] = progress
-                        progressCallbacks[trackId]?(progress)
+                        self.setDownloadProgress(trackId, progress)
+                        self.getProgressCallback(trackId)?(progress)
                         NotificationCenter.default.post(
                             name: .downloadProgress,
                             object: nil,
@@ -220,18 +307,14 @@ import CoreData
                                             if let error = error {
                                                 self.logger.error("Failed to manually download file: \(error.localizedDescription)")
                                                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                                                self.activeDownloads.removeValue(forKey: trackId)
-                                                self.downloadProgress.removeValue(forKey: trackId)
-                                                self.progressCallbacks.removeValue(forKey: trackId)
+                                                self.removeAllDownloadData(trackId)
                                                 return
                                             }
                                             
                                             guard let data = data, !data.isEmpty else {
                                                 self.logger.error("No data received in manual download")
                                                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                                                self.activeDownloads.removeValue(forKey: trackId)
-                                                self.downloadProgress.removeValue(forKey: trackId)
-                                                self.progressCallbacks.removeValue(forKey: trackId)
+                                                self.removeAllDownloadData(trackId)
                                                 return
                                             }
                                             
@@ -239,9 +322,7 @@ import CoreData
                                             guard data.count > 8 else {
                                                 self.logger.error("Downloaded file is too small")
                                                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                                                self.activeDownloads.removeValue(forKey: trackId)
-                                                self.downloadProgress.removeValue(forKey: trackId)
-                                                self.progressCallbacks.removeValue(forKey: trackId)
+                                                self.removeAllDownloadData(trackId)
                                                 return
                                             }
                                             
@@ -251,9 +332,7 @@ import CoreData
                                                 if String(data: flacSignature, encoding: .ascii) == "fLaC" {
                                                     self.logger.error("Downloaded file is FLAC format, not M4A/AAC. Server did not transcode despite requesting container=m4a&audioCodec=aac")
                                                     DownloadStatusManager.setStatus(.failed, for: trackId)
-                                                    self.activeDownloads.removeValue(forKey: trackId)
-                                                    self.downloadProgress.removeValue(forKey: trackId)
-                                                    self.progressCallbacks.removeValue(forKey: trackId)
+                                                    self.removeAllDownloadData(trackId)
                                                     return
                                                 }
                                             }
@@ -263,9 +342,7 @@ import CoreData
                                                firstLine.contains("#EXTM3U") || firstLine.contains("#EXT-X") {
                                                 self.logger.error("File is HLS playlist (starts with: \(firstLine.prefix(50)))")
                                                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                                                self.activeDownloads.removeValue(forKey: trackId)
-                                                self.downloadProgress.removeValue(forKey: trackId)
-                                                self.progressCallbacks.removeValue(forKey: trackId)
+                                                self.removeAllDownloadData(trackId)
                                                 return
                                             }
                                             
@@ -293,9 +370,7 @@ import CoreData
                                             if !isValidM4A {
                                                 self.logger.error("Downloaded file does not appear to be a valid M4A/AAC file. Server may not be transcoding properly.")
                                                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                                                self.activeDownloads.removeValue(forKey: trackId)
-                                                self.downloadProgress.removeValue(forKey: trackId)
-                                                self.progressCallbacks.removeValue(forKey: trackId)
+                                                self.removeAllDownloadData(trackId)
                                                 return
                                             }
                                             
@@ -318,9 +393,7 @@ import CoreData
                                                         self.logger.error("Downloaded file is not playable by AVPlayer")
                                                         try? fileManager.removeItem(at: fileURL)
                                                         DownloadStatusManager.setStatus(.failed, for: trackId)
-                                                        self.activeDownloads.removeValue(forKey: trackId)
-                                                        self.downloadProgress.removeValue(forKey: trackId)
-                                                        self.progressCallbacks.removeValue(forKey: trackId)
+                                                        self.removeAllDownloadData(trackId)
                                                         return
                                                     }
                                                 } catch {
@@ -329,10 +402,10 @@ import CoreData
                                                 }
                                                 
                                                 DownloadStatusManager.setStatus(.downloaded, for: trackId)
-                                                self.downloadProgress[trackId] = 1.0
-                                                self.progressCallbacks[trackId]?(1.0)
-                                                self.activeDownloads.removeValue(forKey: trackId)
-                                                self.progressCallbacks.removeValue(forKey: trackId)
+                                                self.setDownloadProgress(trackId, 1.0)
+                                                self.getProgressCallback(trackId)?(1.0)
+                                                self.removeActiveDownload(trackId)
+                                                self.removeProgressCallback(trackId)
                                                 
                                                 // Post completion notification
                                                 NotificationCenter.default.post(
@@ -344,9 +417,7 @@ import CoreData
                                             } catch {
                                                 self.logger.error("Failed to save manually downloaded file: \(error.localizedDescription)")
                                                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                                                self.activeDownloads.removeValue(forKey: trackId)
-                                                self.downloadProgress.removeValue(forKey: trackId)
-                                                self.progressCallbacks.removeValue(forKey: trackId)
+                                                self.removeAllDownloadData(trackId)
                                             }
                                         }
                                     }
@@ -359,8 +430,8 @@ import CoreData
                                 DownloadStatusManager.setStatus(.downloaded, for: trackId)
                                 downloadProgress[trackId] = 1.0
                                 progressCallbacks[trackId]?(1.0)
-                                activeDownloads.removeValue(forKey: trackId)
-                                progressCallbacks.removeValue(forKey: trackId)
+                                self.removeActiveDownload(trackId)
+                                self.removeProgressCallback(trackId)
                                 
                                 // Post completion notification
                                 NotificationCenter.default.post(
@@ -381,11 +452,9 @@ import CoreData
     /// Cancel a download
     @MainActor
     func cancelDownload(for trackId: String) {
-        guard let task = activeDownloads[trackId] else { return }
+        guard let task = getActiveDownload(trackId) else { return }
         task.cancel()
-        activeDownloads.removeValue(forKey: trackId)
-        downloadProgress.removeValue(forKey: trackId)
-        progressCallbacks.removeValue(forKey: trackId)
+        removeAllDownloadData(trackId)
         DownloadStatusManager.setStatus(.notDownloaded, for: trackId)
         logger.info("Cancelled download for track: \(trackId)")
     }
@@ -613,9 +682,7 @@ import CoreData
         if isHLSPlaylist {
             Task { @MainActor in
                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                activeDownloads.removeValue(forKey: trackId)
-                downloadProgress.removeValue(forKey: trackId)
-                progressCallbacks.removeValue(forKey: trackId)
+                removeAllDownloadData(trackId)
             }
             // Clean up the HLS file
             try? fileManager.removeItem(at: location)
@@ -632,9 +699,7 @@ import CoreData
         if fileSize == 0 {
             Task { @MainActor in
                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                activeDownloads.removeValue(forKey: trackId)
-                downloadProgress.removeValue(forKey: trackId)
-                progressCallbacks.removeValue(forKey: trackId)
+                removeAllDownloadData(trackId)
             }
             try? fileManager.removeItem(at: location)
             return
@@ -659,16 +724,16 @@ import CoreData
                         }
                         return
                     }
-                } catch {
+                } catch _ {
                     // Continue anyway - might still work
                 }
                 
                 await MainActor.run {
                     DownloadStatusManager.setStatus(.downloaded, for: trackId)
-                    downloadProgress[trackId] = 1.0
-                    progressCallbacks[trackId]?(1.0)
-                    activeDownloads.removeValue(forKey: trackId)
-                    progressCallbacks.removeValue(forKey: trackId)
+                    self.setDownloadProgress(trackId, 1.0)
+                    self.getProgressCallback(trackId)?(1.0)
+                    removeActiveDownload(trackId)
+                    removeProgressCallback(trackId)
                     
                     // Post notification that download completed
                     NotificationCenter.default.post(
@@ -681,9 +746,7 @@ import CoreData
         } catch {
             Task { @MainActor in
                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                activeDownloads.removeValue(forKey: trackId)
-                downloadProgress.removeValue(forKey: trackId)
-                progressCallbacks.removeValue(forKey: trackId)
+                removeAllDownloadData(trackId)
             }
         }
     }
@@ -703,8 +766,8 @@ import CoreData
         
         // Update progress on main actor
         Task { @MainActor in
-            downloadProgress[trackId] = progress
-            progressCallbacks[trackId]?(progress)
+            self.setDownloadProgress(trackId, progress)
+            self.getProgressCallback(trackId)?(progress)
             
             // Post notification for UI updates
             NotificationCenter.default.post(
@@ -721,12 +784,10 @@ import CoreData
             return
         }
         
-        if let error = error {
+        if error != nil {
             Task { @MainActor in
                 DownloadStatusManager.setStatus(.failed, for: trackId)
-                activeDownloads.removeValue(forKey: trackId)
-                downloadProgress.removeValue(forKey: trackId)
-                progressCallbacks.removeValue(forKey: trackId)
+                removeAllDownloadData(trackId)
             }
         }
     }

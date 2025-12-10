@@ -3,10 +3,10 @@ import Foundation
 import OSLog
 
 protocol AppLogger {
-    func debug(_ message: @autoclosure () -> String)
-    func info(_ message: @autoclosure () -> String)
-    func warning(_ message: @autoclosure () -> String)
-    func error(_ message: @autoclosure () -> String)
+    nonisolated func debug(_ message: @autoclosure () -> String)
+    nonisolated func info(_ message: @autoclosure () -> String)
+    nonisolated func warning(_ message: @autoclosure () -> String)
+    nonisolated func error(_ message: @autoclosure () -> String)
 }
 
 enum LogCategory: String {
@@ -27,7 +27,9 @@ enum LogCategory: String {
 }
 
 struct Log {
-    static func make(_ category: LogCategory) -> AppLogger {
+    /// Creates a logger for the given category
+    /// Nonisolated to allow creation from any context (actors, main actor, etc.)
+    nonisolated static func make(_ category: LogCategory) -> AppLogger {
         OSLogLogger(category: category.rawValue)
     }
 }

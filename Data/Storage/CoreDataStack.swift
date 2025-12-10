@@ -3,7 +3,7 @@ import CoreData
 import Foundation
 
 final class CoreDataStack {
-    static let shared = CoreDataStack()
+    nonisolated static let shared = CoreDataStack()
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "KartunesDataModel")

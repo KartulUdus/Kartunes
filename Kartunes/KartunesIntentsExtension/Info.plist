@@ -15,6 +15,10 @@
 				<string>INPlayMediaIntent</string>
 				<string>INUpdateMediaAffinityIntent</string>
 			</array>
+			<key>INSupportedMediaCategories</key>
+			<array>
+				<string>INMediaCategoryAudio</string>
+			</array>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.intents-service</string>

@@ -16,7 +16,9 @@ extension MediaServerLibraryRepository {
             throw LibraryRepositoryError.serverNotFound
         }
         
-        let syncManager = MediaServerSyncManager(apiClient: apiClient, coreDataStack: coreDataStack)
+        let syncManager = await MainActor.run {
+            MediaServerSyncManager.create(apiClient: apiClient, coreDataStack: coreDataStack)
+        }
         try await syncManager.syncPlaylists(for: cdServer)
     }
     

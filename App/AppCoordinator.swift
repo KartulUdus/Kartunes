@@ -255,7 +255,7 @@ final class AppCoordinator: ObservableObject {
         self.playbackRepository = playbackRepo
         
         // Recreate sync manager with new API client
-        self.syncManager = MediaServerSyncManager(apiClient: apiClient)
+        self.syncManager = MediaServerSyncManager.create(apiClient: apiClient)
         
         // Reset sync state when server changes
         self.isSyncing = false

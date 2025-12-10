@@ -64,6 +64,8 @@
 		6528C8DF2EDB944600A71C01 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8DE2EDB944600A71C01 /* AppTheme.swift */; };
 		6528C8E22EDB9A7E00A71C01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6528C8E12EDB9A7E00A71C01 /* Assets.xcassets */; };
 		6528C8E52EDC4F5E00A71C01 /* NowPlayingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8E42EDC4F5E00A71C01 /* NowPlayingManager.swift */; };
+		6528C8E72EDC4F5E00A71C01 /* NowPlayingInfoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8E62EDC4F5E00A71C01 /* NowPlayingInfoManager.swift */; };
+		6528C8E82EDC4F5E00A71C01 /* NowPlayingInfoBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C8E92EDC4F5E00A71C01 /* NowPlayingInfoBuilder.swift */; };
 		6528C90A2EDC5F4000A71C01 /* Kartunes Watch App Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 6528C8EA2EDC5F3F00A71C01 /* Kartunes Watch App Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6528C91C2EDC621B00A71C01 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C91A2EDC621B00A71C01 /* WatchConnectivityService.swift */; };
 		6528C9312EDC693800A71C01 /* WatchMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6528C9302EDC693800A71C01 /* WatchMessage.swift */; };
@@ -160,6 +162,8 @@
 		65D2DCB62EE94BBA00283D44 /* DownloadStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D2DCB42EE94BBA00283D44 /* DownloadStatus.swift */; };
 		65D2DCB72EE94BBA00283D44 /* OfflineDownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D2DCB52EE94BBA00283D44 /* OfflineDownloadManager.swift */; };
 		65D2DCB92EE94BD900283D44 /* DownloadsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D2DCB82EE94BD900283D44 /* DownloadsView.swift */; };
+		65F5B1392EEA050800F56682 /* FavoritesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F5B1372EEA050800F56682 /* FavoritesStore.swift */; };
+		65F5B13A2EEA050800F56682 /* LibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F5B1382EEA050800F56682 /* LibraryStore.swift */; };
 		804819C862304E60B06F29D4 /* MediaServerPlaybackRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFDE04A9FBA4F729B324B98 /* MediaServerPlaybackRepository.swift */; };
 		8BF7A04957474722A609C001 /* DTOImageTagHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD70E8A939B498BA7A9BB5B /* DTOImageTagHelpers.swift */; };
 		90BB4CBD49B04CAFB32467A0 /* MediaServerPlaybackRepository+Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9299255AC1246A7AC48368D /* MediaServerPlaybackRepository+Queue.swift */; };
@@ -266,6 +270,8 @@
 		6528C8E12EDB9A7E00A71C01 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6528C8E32EDC336200A71C01 /* Kartunes-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Kartunes-Info.plist"; sourceTree = "<group>"; };
 		6528C8E42EDC4F5E00A71C01 /* NowPlayingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingManager.swift; sourceTree = "<group>"; };
+		6528C8E62EDC4F5E00A71C01 /* NowPlayingInfoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingInfoManager.swift; sourceTree = "<group>"; };
+		6528C8E92EDC4F5E00A71C01 /* NowPlayingInfoBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingInfoBuilder.swift; sourceTree = "<group>"; };
 		6528C8EA2EDC5F3F00A71C01 /* Kartunes Watch App Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kartunes Watch App Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6528C91A2EDC621B00A71C01 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
 		6528C92E2EDC66B800A71C01 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
@@ -347,6 +353,8 @@
 		65D2DCB42EE94BBA00283D44 /* DownloadStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadStatus.swift; sourceTree = "<group>"; };
 		65D2DCB52EE94BBA00283D44 /* OfflineDownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineDownloadManager.swift; sourceTree = "<group>"; };
 		65D2DCB82EE94BD900283D44 /* DownloadsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadsView.swift; sourceTree = "<group>"; };
+		65F5B1372EEA050800F56682 /* FavoritesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesStore.swift; sourceTree = "<group>"; };
+		65F5B1382EEA050800F56682 /* LibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryStore.swift; sourceTree = "<group>"; };
 		680293E587A7452FB7DB6C8F /* MediaServerAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerAuthRepository.swift; sourceTree = "<group>"; };
 		8BFDE04A9FBA4F729B324B98 /* MediaServerPlaybackRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaServerPlaybackRepository.swift; sourceTree = "<group>"; };
 		93C141B3DE6F490CB9EE304F /* MediaServerPlaybackRepository+Reporting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaServerPlaybackRepository+Reporting.swift"; sourceTree = "<group>"; };
@@ -481,6 +489,8 @@
 		6528C8682EDB7F2200A71C01 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				65F5B1372EEA050800F56682 /* FavoritesStore.swift */,
+				65F5B1382EEA050800F56682 /* LibraryStore.swift */,
 				65D2DCB42EE94BBA00283D44 /* DownloadStatus.swift */,
 				65D2DCB52EE94BBA00283D44 /* OfflineDownloadManager.swift */,
 				65C2B3CF2EDF109A00034D94 /* LikedPlaylistManager.swift */,
@@ -622,6 +632,8 @@
 			isa = PBXGroup;
 			children = (
 				6528C8E42EDC4F5E00A71C01 /* NowPlayingManager.swift */,
+				6528C8E62EDC4F5E00A71C01 /* NowPlayingInfoManager.swift */,
+				6528C8E92EDC4F5E00A71C01 /* NowPlayingInfoBuilder.swift */,
 				6528C8902EDB7F2200A71C01 /* NowPlayingView.swift */,
 				6528C8912EDB7F2200A71C01 /* PlaybackViewModel.swift */,
 				6528C8922EDB7F2200A71C01 /* UpNextView.swift */,
@@ -1065,6 +1077,8 @@
 				6592921C2EE08A0F006E1285 /* DefaultEmbyAPIClient+Helpers.swift in Sources */,
 				6592921D2EE08A0F006E1285 /* DefaultEmbyAPIClient+Reporting.swift in Sources */,
 				6592921E2EE08A0F006E1285 /* DefaultEmbyAPIClient+Streaming.swift in Sources */,
+				65F5B1392EEA050800F56682 /* FavoritesStore.swift in Sources */,
+				65F5B13A2EEA050800F56682 /* LibraryStore.swift in Sources */,
 				6592921F2EE08A0F006E1285 /* DefaultEmbyAPIClient+Auth.swift in Sources */,
 				659292202EE08A0F006E1285 /* DefaultEmbyAPIClient.swift in Sources */,
 				659292212EE08A0F006E1285 /* EmbyAPIClient.swift in Sources */,
@@ -1148,6 +1162,8 @@
 				4AB501163AF7456ABF0594D2 /* MediaServerAuthRepository.swift in Sources */,
 				6528C8CF2EDB7F2200A71C01 /* UmbrellaGenres.swift in Sources */,
 				6528C8E52EDC4F5E00A71C01 /* NowPlayingManager.swift in Sources */,
+				6528C8E72EDC4F5E00A71C01 /* NowPlayingInfoManager.swift in Sources */,
+				6528C8E82EDC4F5E00A71C01 /* NowPlayingInfoBuilder.swift in Sources */,
 				6528C8D02EDB7F2200A71C01 /* PlaybackContext.swift in Sources */,
 				6528C8D12EDB7F2200A71C01 /* PlaybackQueue.swift in Sources */,
 				659290E32EE0709E006E1285 /* PlaylistMapping.swift in Sources */,
@@ -1425,6 +1441,7 @@
 				INFOPLIST_FILE = "Kartunes-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Kartunes;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSSiriUsageDescription = "Kartunes uses Siri to play music from your library.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDarkContent;
@@ -1464,6 +1481,7 @@
 				INFOPLIST_FILE = "Kartunes-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Kartunes;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
+				INFOPLIST_KEY_NSSiriUsageDescription = "Kartunes uses Siri to play music from your library.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleDarkContent;
@@ -1585,6 +1603,7 @@
 		65D2DC872EE931D900283D44 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = KartunesIntentsExtension/KartunesIntentsExtensionDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 55C8Z3MUYL;

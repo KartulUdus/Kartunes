@@ -33,13 +33,20 @@ final class PlaybackViewModel: ObservableObject {
     private var hasWaitedForTimebaseSync = false
     private var trackFinishedObserver: NSObjectProtocol?
     private var isSeeking = false // Flag to prevent time updates during seek
+    private var seekGenerationId: Int = 0 // Track seek operations to prevent late completions
     
     // Playback Queue
     private var activeQueue: PlaybackQueue?
     
-    // Shuffle state: tracks which songs have been played
-    private var shufflePlayedTracks: Set<String> = []
-    private var shuffleRemainingTracks: [Track] = []
+    // Shuffle state: stable shuffled order with history
+    private var shuffleOrder: [Track] = [] // The stable shuffled order
+    private var shuffleHistory: [Track] = [] // Stack of previously played tracks (for "previous")
+    private var shuffleCurrentIndex: Int = 0 // Current position in shuffleOrder
+    private var originalQueueOrder: [Track] = [] // Original order before shuffle (for reverting)
+    
+    // Transition lock to prevent race conditions
+    private var isTransitioning = false
+    private var isCreatingInstantMix = false // Guard against concurrent instantMix operations
     
     init(playbackRepository: PlaybackRepository, libraryRepository: LibraryRepository? = nil) {
         self.playbackRepository = playbackRepository
@@ -190,12 +197,31 @@ final class PlaybackViewModel: ObservableObject {
             return
         }
         
+        // Store original order
+        originalQueueOrder = tracks
+        
         // Reset shuffle state when starting a new queue
         if isShuffleEnabled {
-            shufflePlayedTracks.removeAll()
-            shuffleRemainingTracks = tracks.shuffled()
-            // Mark the starting track as played
-            shufflePlayedTracks.insert(tracks[index].id)
+            // Create stable shuffled order
+            shuffleOrder = tracks.shuffled()
+            shuffleHistory = []
+            // Find the starting track's position in the shuffled order
+            if index < tracks.count {
+                let startTrack = tracks[index]
+                if let shuffleIndex = shuffleOrder.firstIndex(where: { $0.id == startTrack.id }) {
+                    shuffleCurrentIndex = shuffleIndex
+                    // Add all tracks before current to history
+                    shuffleHistory = Array(shuffleOrder[0..<shuffleIndex])
+                } else {
+                    shuffleCurrentIndex = 0
+                }
+            } else {
+                shuffleCurrentIndex = 0
+            }
+        } else {
+            shuffleOrder = []
+            shuffleHistory = []
+            shuffleCurrentIndex = 0
         }
         
         // Create and store the queue (no size limit - lazy loading handles performance)
@@ -263,12 +289,22 @@ final class PlaybackViewModel: ObservableObject {
             queue = []
             activeQueue = nil
             hasWaitedForTimebaseSync = false
-            shufflePlayedTracks.removeAll()
-            shuffleRemainingTracks.removeAll()
+            shuffleOrder = []
+            shuffleHistory = []
+            shuffleCurrentIndex = 0
+            originalQueueOrder = []
+            isTransitioning = false
+            isCreatingInstantMix = false
         }
     }
     
     func next() {
+        // Prevent race conditions
+        guard !isTransitioning else {
+            logger.debug("next: Already transitioning, ignoring command")
+            return
+        }
+        
         guard let queue = activeQueue else {
             // Fallback to repository if no queue
             Task {
@@ -277,6 +313,8 @@ final class PlaybackViewModel: ObservableObject {
             }
             return
         }
+        
+        isTransitioning = true
         
         if isShuffleEnabled {
             playNextShuffledTrack()
@@ -290,6 +328,9 @@ final class PlaybackViewModel: ObservableObject {
                 Task {
                     await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
                     await updateState()
+                    await MainActor.run {
+                        self.isTransitioning = false
+                    }
                 }
             } else {
                 // End of queue - handle repeat all
@@ -303,9 +344,13 @@ final class PlaybackViewModel: ObservableObject {
                     Task {
                         await playbackRepository.play(queue: queue.tracks, startingAt: 0, context: queue.context)
                         await updateState()
+                        await MainActor.run {
+                            self.isTransitioning = false
+                        }
                     }
                 } else {
                     logger.warning("next: No next track available")
+                    isTransitioning = false
                 }
             }
         }
@@ -335,23 +380,38 @@ final class PlaybackViewModel: ObservableObject {
     }
     
     private func playNextShuffledTrack() {
-        guard let queue = activeQueue else { return }
-        
-        // Get tracks that haven't been played yet
-        let unplayedTracks = shuffleRemainingTracks.filter { !shufflePlayedTracks.contains($0.id) }
-        
-        if unplayedTracks.isEmpty {
-            // All tracks have been played, reset and shuffle again
-            logger.debug("All tracks played, reshuffling")
-            shufflePlayedTracks.removeAll()
-            shuffleRemainingTracks = queue.tracks.shuffled()
-            playNextShuffledTrack()
+        guard let queue = activeQueue else {
+            isTransitioning = false
             return
         }
         
-        // Pick a random unplayed track
-        let nextTrack = unplayedTracks.randomElement()!
-        shufflePlayedTracks.insert(nextTrack.id)
+        // Add current track to history if it exists
+        if let current = queue.currentTrack {
+            shuffleHistory.append(current)
+        }
+        
+        // Move to next in shuffle order
+        shuffleCurrentIndex += 1
+        
+        // Check if we've reached the end of shuffle order
+        if shuffleCurrentIndex >= shuffleOrder.count {
+            // All tracks played - handle repeat
+            if repeatMode == .all {
+                // Reshuffle and start over
+                logger.debug("All tracks played, reshuffling")
+                shuffleOrder = queue.tracks.shuffled()
+                shuffleHistory = []
+                shuffleCurrentIndex = 0
+            } else {
+                // End of queue
+                logger.warning("playNextShuffledTrack: End of shuffle order")
+                isTransitioning = false
+                return
+            }
+        }
+        
+        // Get next track from shuffle order
+        let nextTrack = shuffleOrder[shuffleCurrentIndex]
         
         // Find the index in the original queue
         if let nextIndex = queue.tracks.firstIndex(where: { $0.id == nextTrack.id }) {
@@ -364,11 +424,23 @@ final class PlaybackViewModel: ObservableObject {
             Task {
                 await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
                 await updateState()
+                await MainActor.run {
+                    self.isTransitioning = false
+                }
             }
+        } else {
+            logger.warning("playNextShuffledTrack: Track not found in original queue")
+            isTransitioning = false
         }
     }
     
     func previous() {
+        // Prevent race conditions
+        guard !isTransitioning else {
+            logger.debug("previous: Already transitioning, ignoring command")
+            return
+        }
+        
         guard let queue = activeQueue else {
             // Fallback to repository if no queue
             Task {
@@ -378,21 +450,13 @@ final class PlaybackViewModel: ObservableObject {
             return
         }
         
-        // Move to previous track in queue
-        if queue.moveToPrevious() {
-            currentTrack = queue.currentTrack
-            self.queue = queue.tracks
-            currentTime = 0
-            duration = 0
-            Task {
-                await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
-                await updateState()
-            }
+        isTransitioning = true
+        
+        if isShuffleEnabled {
+            playPreviousShuffledTrack()
         } else {
-            // Beginning of queue - handle repeat all
-            if repeatMode == .all {
-                logger.debug("previous: Beginning of queue, repeat all - going to end")
-                queue.currentIndex = queue.tracks.count - 1
+            // Move to previous track in queue
+            if queue.moveToPrevious() {
                 currentTrack = queue.currentTrack
                 self.queue = queue.tracks
                 currentTime = 0
@@ -400,10 +464,95 @@ final class PlaybackViewModel: ObservableObject {
                 Task {
                     await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
                     await updateState()
+                    await MainActor.run {
+                        self.isTransitioning = false
+                    }
                 }
             } else {
-                logger.warning("previous: No previous track available")
+                // Beginning of queue - handle repeat all
+                if repeatMode == .all {
+                    logger.debug("previous: Beginning of queue, repeat all - going to end")
+                    queue.currentIndex = queue.tracks.count - 1
+                    currentTrack = queue.currentTrack
+                    self.queue = queue.tracks
+                    currentTime = 0
+                    duration = 0
+                    Task {
+                        await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
+                        await updateState()
+                        await MainActor.run {
+                            self.isTransitioning = false
+                        }
+                    }
+                } else {
+                    logger.warning("previous: No previous track available")
+                    isTransitioning = false
+                }
             }
+        }
+    }
+    
+    private func playPreviousShuffledTrack() {
+        guard let queue = activeQueue else {
+            isTransitioning = false
+            return
+        }
+        
+        // Check if we have history to go back to
+        guard !shuffleHistory.isEmpty else {
+            // No history - handle repeat all
+            if repeatMode == .all {
+                // Go to end of shuffle order
+                shuffleCurrentIndex = shuffleOrder.count - 1
+                if let lastTrack = shuffleOrder.last,
+                   let lastIndex = queue.tracks.firstIndex(where: { $0.id == lastTrack.id }) {
+                    queue.currentIndex = lastIndex
+                    currentTrack = queue.currentTrack
+                    self.queue = queue.tracks
+                    currentTime = 0
+                    duration = 0
+                    Task {
+                        await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
+                        await updateState()
+                        await MainActor.run {
+                            self.isTransitioning = false
+                        }
+                    }
+                } else {
+                    isTransitioning = false
+                }
+            } else {
+                logger.warning("playPreviousShuffledTrack: No history and repeat off")
+                isTransitioning = false
+            }
+            return
+        }
+        
+        // Get previous track from history
+        let previousTrack = shuffleHistory.removeLast()
+        
+        // Update shuffle index to match
+        if let historyIndex = shuffleOrder.firstIndex(where: { $0.id == previousTrack.id }) {
+            shuffleCurrentIndex = historyIndex
+        }
+        
+        // Find the index in the original queue
+        if let prevIndex = queue.tracks.firstIndex(where: { $0.id == previousTrack.id }) {
+            queue.currentIndex = prevIndex
+            currentTrack = queue.currentTrack
+            self.queue = queue.tracks
+            currentTime = 0
+            duration = 0
+            Task {
+                await playbackRepository.play(queue: queue.tracks, startingAt: queue.currentIndex, context: queue.context)
+                await updateState()
+                await MainActor.run {
+                    self.isTransitioning = false
+                }
+            }
+        } else {
+            logger.warning("playPreviousShuffledTrack: Track not found in original queue")
+            isTransitioning = false
         }
     }
     
@@ -426,7 +575,12 @@ final class PlaybackViewModel: ObservableObject {
     func getUpNextTracks() -> [Track] {
         guard let queue = activeQueue else { return [] }
         
-        // Always return all tracks in the queue
+        // If shuffle is enabled, show the shuffled order
+        if isShuffleEnabled && !shuffleOrder.isEmpty {
+            return shuffleOrder
+        }
+        
+        // Otherwise return original queue order
         return queue.tracks
     }
     
@@ -452,24 +606,44 @@ final class PlaybackViewModel: ObservableObject {
         
         // Update shuffle state if enabled
         if isShuffleEnabled {
-            // Remove from shuffle remaining if it's there
-            shuffleRemainingTracks.removeAll { $0.id == track.id }
+            // Add to shuffle order if not already present
+            if !shuffleOrder.contains(where: { $0.id == track.id }) {
+                shuffleOrder.insert(track, at: shuffleCurrentIndex + 1)
+            }
         }
         
         logger.debug("playNext: Added '\(track.title)' to play next at index \(insertIndex)")
     }
     
     func seek(to time: TimeInterval) {
+        // Increment generation ID for this seek operation
+        seekGenerationId += 1
+        let currentSeekId = seekGenerationId
+        
         isSeeking = true
         currentTime = time // Update immediately to prevent jitter
+        
         Task {
             await playbackRepository.seek(to: time)
+            
             // Wait a moment for the seek to complete, then resume time updates
             try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+            
             await MainActor.run {
+                // Only update if this is still the latest seek operation
+                guard currentSeekId == self.seekGenerationId else {
+                    self.logger.debug("Seek operation \(currentSeekId) outdated, ignoring completion")
+                    return
+                }
+                
                 self.isSeeking = false
                 // Update time once more to sync with actual player position
                 Task {
+                    // Final check before updating time
+                    let finalSeekId = await MainActor.run { self.seekGenerationId }
+                    guard currentSeekId == finalSeekId else {
+                        return
+                    }
                     self.currentTime = await self.playbackRepository.getCurrentTime()
                 }
             }
@@ -484,6 +658,37 @@ final class PlaybackViewModel: ObservableObject {
         // Store current track in shared state for Siri extension
         if let track = currentTrack {
             SharedPlaybackState.storeCurrentTrack(track)
+            
+            // Reconcile liked state from FavoritesStore when track changes
+            if track.id != previousTrackId {
+                let isLiked = FavoritesStore.shared.isLiked(track.id)
+                if track.isLiked != isLiked {
+                    // Create updated track with correct liked state
+                    let updatedTrack = Track(
+                        id: track.id,
+                        title: track.title,
+                        albumId: track.albumId,
+                        albumTitle: track.albumTitle,
+                        artistName: track.artistName,
+                        duration: track.duration,
+                        trackNumber: track.trackNumber,
+                        discNumber: track.discNumber,
+                        dateAdded: track.dateAdded,
+                        playCount: track.playCount,
+                        isLiked: isLiked,
+                        streamUrl: track.streamUrl,
+                        serverId: track.serverId
+                    )
+                    currentTrack = updatedTrack
+                    
+                    // Update in queue if it exists
+                    if let queue = activeQueue,
+                       let index = queue.tracks.firstIndex(where: { $0.id == track.id }) {
+                        queue.tracks[index] = updatedTrack
+                        self.queue = queue.tracks
+                    }
+                }
+            }
         }
         
         // Log when track changes and try to get album art
@@ -611,9 +816,7 @@ final class PlaybackViewModel: ObservableObject {
         // Check if there's a next track
         let hasNext: Bool
         if isShuffleEnabled {
-            // Check if there are unplayed tracks
-            let unplayedTracks = shuffleRemainingTracks.filter { !shufflePlayedTracks.contains($0.id) }
-            hasNext = !unplayedTracks.isEmpty || shufflePlayedTracks.count < queue.tracks.count
+            hasNext = shuffleCurrentIndex < shuffleOrder.count - 1 || repeatMode == .all
         } else {
             hasNext = queue.hasNext
         }
@@ -643,8 +846,9 @@ final class PlaybackViewModel: ObservableObject {
                 logger.debug("handleTrackFinished: Repeat all - restarting queue")
                 // Reset shuffle state if enabled
                 if isShuffleEnabled {
-                    shufflePlayedTracks.removeAll()
-                    shuffleRemainingTracks = queue.tracks.shuffled()
+                    shuffleOrder = queue.tracks.shuffled()
+                    shuffleHistory = []
+                    shuffleCurrentIndex = 0
                 }
                 // Restart from beginning
                 queue.currentIndex = 0
@@ -664,22 +868,54 @@ final class PlaybackViewModel: ObservableObject {
     // MARK: - Shuffle and Repeat Controls
     
     func toggleShuffle() {
+        guard let queue = activeQueue else { return }
+        
         isShuffleEnabled.toggle()
         
         if isShuffleEnabled {
-            // Initialize shuffle state
-            guard let queue = activeQueue else { return }
-            shuffleRemainingTracks = queue.tracks.shuffled()
-            shufflePlayedTracks.removeAll()
-            // Mark current track as played
-            if let currentTrack = queue.currentTrack {
-                shufflePlayedTracks.insert(currentTrack.id)
+            // Store original order if not already stored
+            if originalQueueOrder.isEmpty {
+                originalQueueOrder = queue.tracks
             }
-            logger.debug("Shuffle enabled with \(queue.tracks.count) tracks")
+            
+            // Create stable shuffled order
+            shuffleOrder = queue.tracks.shuffled()
+            shuffleHistory = []
+            
+            // Find current track's position in shuffled order
+            if let currentTrack = queue.currentTrack {
+                if let shuffleIndex = shuffleOrder.firstIndex(where: { $0.id == currentTrack.id }) {
+                    shuffleCurrentIndex = shuffleIndex
+                    // Add all tracks before current to history
+                    shuffleHistory = Array(shuffleOrder[0..<shuffleIndex])
+                } else {
+                    shuffleCurrentIndex = 0
+                }
+            } else {
+                shuffleCurrentIndex = 0
+            }
+            
+            logger.debug("Shuffle enabled with \(queue.tracks.count) tracks, current index: \(shuffleCurrentIndex)")
         } else {
-            shufflePlayedTracks.removeAll()
-            shuffleRemainingTracks.removeAll()
-            logger.debug("Shuffle disabled")
+            // Revert to original order
+            if !originalQueueOrder.isEmpty {
+                // Restore original queue order
+                queue.tracks = originalQueueOrder
+                // Find current track's position in original order
+                if let queueCurrentTrack = queue.currentTrack,
+                   let originalIndex = originalQueueOrder.firstIndex(where: { $0.id == queueCurrentTrack.id }) {
+                    queue.currentIndex = originalIndex
+                    self.currentTrack = queue.currentTrack
+                }
+                self.queue = queue.tracks
+            }
+            
+            shuffleOrder = []
+            shuffleHistory = []
+            shuffleCurrentIndex = 0
+            originalQueueOrder = []
+            
+            logger.debug("Shuffle disabled, reverted to original order")
         }
     }
     
@@ -711,9 +947,22 @@ final class PlaybackViewModel: ObservableObject {
     }
     
     func startInstantMix(from itemId: String, kind: InstantMixKind, serverId: UUID? = nil) {
+        // Prevent concurrent instantMix operations
+        guard !isCreatingInstantMix else {
+            logger.warning("startInstantMix: Already creating instant mix, ignoring duplicate request")
+            return
+        }
+        
         logger.info("startInstantMix: Starting instant mix from item \(itemId), kind: \(kind)")
+        isCreatingInstantMix = true
         
         Task {
+            defer {
+                Task { @MainActor in
+                    self.isCreatingInstantMix = false
+                }
+            }
+            
             do {
                 let tracks = try await playbackRepository.generateInstantMix(from: itemId, kind: kind, serverId: serverId)
                 
@@ -727,12 +976,14 @@ final class PlaybackViewModel: ObservableObject {
                 // Clear current queue and start new one with instant mix tracks
                 await MainActor.run {
                     // Clear shuffle state
-                    shufflePlayedTracks.removeAll()
-                    shuffleRemainingTracks.removeAll()
+                    shuffleOrder = []
+                    shuffleHistory = []
+                    shuffleCurrentIndex = 0
+                    originalQueueOrder = []
                     isShuffleEnabled = false
                     
                     // Start new queue from instant mix
-                    startQueue(from: tracks, at: 0, context: .custom(tracks.map { $0.id }))
+                    startQueue(from: tracks, at: 0, context: .instantMix(seedItemId: itemId))
                 }
             } catch {
                 logger.error("startInstantMix: Error: \(error.localizedDescription)")
@@ -748,28 +999,76 @@ final class PlaybackViewModel: ObservableObject {
             return
         }
         
+        // Optimistic update - update UI immediately
+        let newLikedState = !track.isLiked
+        FavoritesStore.shared.setLiked(track.id, newLikedState)
+        
+        // Create updated track with new liked state
+        let updatedTrack = Track(
+            id: track.id,
+            title: track.title,
+            albumId: track.albumId,
+            albumTitle: track.albumTitle,
+            artistName: track.artistName,
+            duration: track.duration,
+            trackNumber: track.trackNumber,
+            discNumber: track.discNumber,
+            dateAdded: track.dateAdded,
+            playCount: track.playCount,
+            isLiked: newLikedState,
+            streamUrl: track.streamUrl,
+            serverId: track.serverId
+        )
+        currentTrack = updatedTrack
+        
+        // Update the track in the queue if it exists
+        if let queue = activeQueue,
+           let index = queue.tracks.firstIndex(where: { $0.id == track.id }) {
+            queue.tracks[index] = updatedTrack
+            self.queue = queue.tracks
+        }
+        
         Task {
             do {
-                let updatedTrack = try await playbackRepository.toggleLike(track: track)
+                let serverUpdatedTrack = try await playbackRepository.toggleLike(track: track)
                 
-                // Update the current track
+                // Update with server response
                 await MainActor.run {
-                    currentTrack = updatedTrack
+                    // Reconcile with server state
+                    FavoritesStore.shared.updateAfterAPICall(trackId: serverUpdatedTrack.id, isLiked: serverUpdatedTrack.isLiked, serverId: serverUpdatedTrack.serverId)
                     
-                    // Update the track in the queue if it exists
-                    if let queue = activeQueue,
-                       let index = queue.tracks.firstIndex(where: { $0.id == track.id }) {
-                        queue.tracks[index] = updatedTrack
-                        self.queue = queue.tracks
+                    // Update current track with server response
+                    if currentTrack?.id == serverUpdatedTrack.id {
+                        currentTrack = serverUpdatedTrack
+                        
+                        // Update the track in the queue if it exists
+                        if let queue = activeQueue,
+                           let index = queue.tracks.firstIndex(where: { $0.id == serverUpdatedTrack.id }) {
+                            queue.tracks[index] = serverUpdatedTrack
+                            self.queue = queue.tracks
+                        }
                     }
                 }
                 
                 logger.info("toggleLike: Successfully toggled like status")
                 
                 // Update liked playlist (don't fail the like toggle if this fails)
-                await updateLikedPlaylist(track: updatedTrack, wasLiked: updatedTrack.isLiked)
+                await updateLikedPlaylist(track: serverUpdatedTrack, wasLiked: serverUpdatedTrack.isLiked)
             } catch {
+                // Revert on error
                 logger.error("toggleLike: Error: \(error.localizedDescription)")
+                await MainActor.run {
+                    // Revert optimistic update
+                    FavoritesStore.shared.setLiked(track.id, !newLikedState)
+                    if let originalTrack = activeQueue?.tracks.first(where: { $0.id == track.id }) {
+                        currentTrack = originalTrack
+                        if let queue = activeQueue,
+                           let index = queue.tracks.firstIndex(where: { $0.id == track.id }) {
+                            queue.tracks[index] = originalTrack
+                            self.queue = queue.tracks
+                        }
+                    }
+                }
             }
         }
     }

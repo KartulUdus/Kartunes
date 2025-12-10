@@ -3,10 +3,10 @@ import Foundation
 
 /// Handles fetching library data from the media server API
 struct MediaServerLibraryFetcher {
-    let apiClient: MediaServerAPIClient
-    let logger: AppLogger
+    nonisolated let apiClient: MediaServerAPIClient
+    nonisolated let logger: AppLogger
     
-    init(apiClient: MediaServerAPIClient, logger: AppLogger = Log.make(.sync)) {
+    nonisolated init(apiClient: MediaServerAPIClient, logger: AppLogger) {
         self.apiClient = apiClient
         self.logger = logger
     }

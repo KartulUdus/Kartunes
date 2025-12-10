@@ -5,6 +5,7 @@ import UIKit
 import Combine
 
 /// Manages Now Playing info for Dynamic Island, Lock Screen, and Control Center
+/// Uses centralized NowPlayingInfoManager actor for all MPNowPlayingInfoCenter updates
 @MainActor
 final class NowPlayingManager {
     private let logger = Log.make(.nowPlaying)
@@ -13,8 +14,7 @@ final class NowPlayingManager {
     private let playbackRepository: PlaybackRepository
     private let apiClient: MediaServerAPIClient
     private var cancellables = Set<AnyCancellable>()
-    private var artworkCache: [String: MPMediaItemArtwork] = [:]
-    private var currentTrackId: String?
+    private let nowPlayingInfoManager = NowPlayingInfoManager.shared
     
     init(
         playbackViewModel: PlaybackViewModel,
@@ -163,8 +163,9 @@ final class NowPlayingManager {
     // MARK: - Now Playing Info
     
     func clearNowPlayingInfo() {
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
-        currentTrackId = nil
+        Task {
+            await nowPlayingInfoManager.clear()
+        }
     }
     
     private func updateNowPlayingInfo(for track: Track?) {
@@ -173,51 +174,36 @@ final class NowPlayingManager {
             return
         }
         
-        let trackChanged = currentTrackId != track.id
-        currentTrackId = track.id
-        
-        var nowPlayingInfo: [String: Any] = [
-            MPMediaItemPropertyTitle: track.title,
-            MPMediaItemPropertyArtist: track.artistName,
-            MPNowPlayingInfoPropertyPlaybackRate: playbackViewModel.isPlaying ? 1.0 : 0.0
-        ]
-        
-        if let albumTitle = track.albumTitle {
-            nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = albumTitle
-        }
-        
-        // Set elapsed playback time
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playbackViewModel.currentTime
-        
-        // Update duration if available
-        if playbackViewModel.duration > 0 {
-            nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playbackViewModel.duration
-        }
-        
-        // Set media type (1 = audio)
-        nowPlayingInfo[MPNowPlayingInfoPropertyMediaType] = 1
-        
-        // Set queue info for AirPlay and system controls
         let queueCount = playbackViewModel.queue.count
-        if queueCount > 0 {
-            nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackQueueCount] = queueCount
-            if let queueIndex = playbackViewModel.getCurrentQueueIndex() {
-                nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackQueueIndex] = queueIndex
-            }
-        }
+        let queueIndex = playbackViewModel.getCurrentQueueIndex()
         
-        // Set initial info without artwork
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-        
-        // Load artwork asynchronously (only if track changed or we don't have it cached)
-        if trackChanged || artworkCache[track.id] == nil {
-            Task {
-                if let artwork = await loadArtwork(for: track) {
-                    await MainActor.run {
-                        // Update with artwork
-                        var updatedInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-                        updatedInfo[MPMediaItemPropertyArtwork] = artwork
-                        MPNowPlayingInfoCenter.default().nowPlayingInfo = updatedInfo
+        // Update track info through centralized manager
+        Task {
+            let _ = await nowPlayingInfoManager.updateTrack(
+                track: track,
+                isPlaying: playbackViewModel.isPlaying,
+                currentTime: playbackViewModel.currentTime,
+                duration: playbackViewModel.duration,
+                queueCount: queueCount,
+                queueIndex: queueIndex
+            )
+            
+            // Check if we need to load artwork
+            let cachedArtwork = await nowPlayingInfoManager.getCachedArtwork(trackId: track.id)
+            if cachedArtwork == nil {
+                // Load artwork asynchronously
+                let requestId = await nowPlayingInfoManager.getArtworkRequestId()
+                let loadingTrackId = track.id
+                
+                if let artwork = await loadArtwork(for: track, requestId: requestId, trackId: loadingTrackId) {
+                    // Update artwork through centralized manager
+                    let applied = await nowPlayingInfoManager.updateArtwork(
+                        artwork: artwork,
+                        trackId: loadingTrackId,
+                        artworkRequestId: requestId
+                    )
+                    if !applied {
+                        logger.debug("Artwork update rejected - track or request changed")
                     }
                 }
             }
@@ -225,54 +211,81 @@ final class NowPlayingManager {
     }
     
     private func updatePlaybackState(isPlaying: Bool) {
-        var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-        info[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
-        info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playbackViewModel.currentTime
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+        let trackId = playbackViewModel.currentTrack?.id
+        let currentTime = playbackViewModel.currentTime
+        
+        Task {
+            let applied = await nowPlayingInfoManager.updatePlaybackState(
+                isPlaying: isPlaying,
+                currentTime: currentTime,
+                trackId: trackId
+            )
+            if !applied {
+                // Track changed, trigger full update
+                if let track = playbackViewModel.currentTrack {
+                    updateNowPlayingInfo(for: track)
+                }
+            }
+        }
     }
     
     private func updatePlaybackTime() {
-        var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-        info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playbackViewModel.currentTime
-        if playbackViewModel.duration > 0 {
-            info[MPMediaItemPropertyPlaybackDuration] = playbackViewModel.duration
+        let trackId = playbackViewModel.currentTrack?.id
+        let currentTime = playbackViewModel.currentTime
+        let duration = playbackViewModel.duration
+        
+        Task {
+            let applied = await nowPlayingInfoManager.updatePlaybackTime(
+                currentTime: currentTime,
+                duration: duration,
+                trackId: trackId
+            )
+            if !applied {
+                // Track changed, ignore time update
+            }
         }
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
     
     private func updateQueueInfo() {
-        var info = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
+        let trackId = playbackViewModel.currentTrack?.id
         let queueCount = playbackViewModel.queue.count
-        if queueCount > 0 {
-            info[MPNowPlayingInfoPropertyPlaybackQueueCount] = queueCount
-            if let queueIndex = playbackViewModel.getCurrentQueueIndex() {
-                info[MPNowPlayingInfoPropertyPlaybackQueueIndex] = queueIndex
+        let queueIndex = playbackViewModel.getCurrentQueueIndex()
+        
+        Task {
+            let applied = await nowPlayingInfoManager.updateQueueInfo(
+                queueCount: queueCount,
+                queueIndex: queueIndex,
+                trackId: trackId
+            )
+            if !applied {
+                // Track changed, ignore queue update
             }
         }
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
     
     // MARK: - Artwork Loading
     
-    private func loadArtwork(for track: Track) async -> MPMediaItemArtwork? {
+    private func loadArtwork(for track: Track, requestId: Int, trackId: String) async -> MPMediaItemArtwork? {
+        // Check if request is still valid via centralized manager
+        let currentTrackId = await nowPlayingInfoManager.getCurrentTrackId()
+        guard currentTrackId == trackId else { return nil }
+        
         // Check cache first
-        if let cached = artworkCache[track.id] {
+        if let cached = await nowPlayingInfoManager.getCachedArtwork(trackId: track.id) {
             return cached
         }
         
         // Try to load from album ID first (use 600+ for better AirPlay display)
         if let albumId = track.albumId,
            let imageURL = apiClient.buildImageURL(forItemId: albumId, imageType: "Primary", maxWidth: 600) {
-            if let artwork = await loadArtwork(from: imageURL) {
-                artworkCache[track.id] = artwork
+            if let artwork = await loadArtwork(from: imageURL, requestId: requestId, trackId: trackId) {
                 return artwork
             }
         }
         
         // Fallback to track ID (use 600+ for better AirPlay display)
         if let imageURL = apiClient.buildImageURL(forItemId: track.id, imageType: "Primary", maxWidth: 600) {
-            if let artwork = await loadArtwork(from: imageURL) {
-                artworkCache[track.id] = artwork
+            if let artwork = await loadArtwork(from: imageURL, requestId: requestId, trackId: trackId) {
                 return artwork
             }
         }
@@ -280,10 +293,19 @@ final class NowPlayingManager {
         return nil
     }
     
-    private func loadArtwork(from url: URL) async -> MPMediaItemArtwork? {
+    private func loadArtwork(from url: URL, requestId: Int, trackId: String) async -> MPMediaItemArtwork? {
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
+            
+            // Check if request is still valid before processing
+            let currentTrackId = await nowPlayingInfoManager.getCurrentTrackId()
+            guard currentTrackId == trackId else { return nil }
+            
             guard let image = UIImage(data: data) else { return nil }
+            
+            // Final check before returning
+            let finalTrackId = await nowPlayingInfoManager.getCurrentTrackId()
+            guard finalTrackId == trackId else { return nil }
             
             return MPMediaItemArtwork(boundsSize: image.size) { _ in
                 return image

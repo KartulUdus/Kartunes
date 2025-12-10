@@ -6,13 +6,33 @@ final class PlayMediaIntentHandler: NSObject, INPlayMediaIntentHandling {
     
     private let catalogService = MediaCatalogService()
     private let requestManager = SiriPlaybackRequestManager()
+    private let logger = Log.make(.siri)
+    
+    override init() {
+        super.init()
+        NSLog("🟢 PlayMediaIntentHandler: Initialized")
+        print("🟢 [SIRI] PlayMediaIntentHandler: Initialized")
+        logger.info("PlayMediaIntentHandler initialized")
+        
+        // Test that services are accessible
+        _ = catalogService
+        _ = requestManager
+        NSLog("🟢 PlayMediaIntentHandler: Services initialized successfully")
+        print("🟢 [SIRI] PlayMediaIntentHandler: Services initialized successfully")
+    }
     
     // MARK: - INPlayMediaIntentHandling
     
     /// Resolve media items from the intent
     func resolveMediaItems(for intent: INPlayMediaIntent, with completion: @escaping ([INPlayMediaMediaItemResolutionResult]) -> Void) {
+        NSLog("🟢 PlayMediaIntentHandler: resolveMediaItems called")
+        print("🟢 [SIRI] PlayMediaIntentHandler: resolveMediaItems called")
+        logger.info("resolveMediaItems called")
         // If mediaItems are already provided, use them
         if let mediaItems = intent.mediaItems, !mediaItems.isEmpty {
+            NSLog("🟢 PlayMediaIntentHandler: Media items already provided: \(mediaItems.count)")
+            print("🟢 [SIRI] PlayMediaIntentHandler: Media items already provided: \(mediaItems.count)")
+            logger.info("Media items already provided: \(mediaItems.count)")
             // Convert array of media items to array of resolution results
             let results = mediaItems.map { INPlayMediaMediaItemResolutionResult.success(with: $0) }
             completion(results)
@@ -21,6 +41,9 @@ final class PlayMediaIntentHandler: NSObject, INPlayMediaIntentHandling {
         
         // Otherwise, try to resolve from mediaSearch
         guard let mediaSearch = intent.mediaSearch else {
+            NSLog("🟢 PlayMediaIntentHandler: No mediaSearch found, returning needsValue")
+            print("🟢 [SIRI] PlayMediaIntentHandler: No mediaSearch found, returning needsValue")
+            logger.warning("No mediaSearch found in intent")
             completion([.needsValue()])
             return
         }
@@ -30,6 +53,10 @@ final class PlayMediaIntentHandler: NSObject, INPlayMediaIntentHandling {
         let mediaName = mediaSearch.mediaName
         let artistName = mediaSearch.artistName
         let albumName = mediaSearch.albumName
+        
+        NSLog("🟢 PlayMediaIntentHandler: Searching - type: \(mediaType.rawValue), name: \(mediaName ?? "nil"), artist: \(artistName ?? "nil"), album: \(albumName ?? "nil")")
+        print("🟢 [SIRI] PlayMediaIntentHandler: Searching - type: \(mediaType.rawValue), name: \(mediaName ?? "nil"), artist: \(artistName ?? "nil"), album: \(albumName ?? "nil")")
+        logger.info("Searching - type: \(mediaType.rawValue), name: \(String(describing: mediaName)), artist: \(String(describing: artistName)), album: \(String(describing: albumName))")
         
         // Determine what we're searching for
         Task {
@@ -109,12 +136,25 @@ final class PlayMediaIntentHandler: NSObject, INPlayMediaIntentHandling {
             }
             
             // Return results
+            NSLog("🟢 PlayMediaIntentHandler: Found \(results.count) results")
+            print("🟢 [SIRI] PlayMediaIntentHandler: Found \(results.count) results")
+            logger.info("Found \(results.count) search results")
+            
             if results.isEmpty {
+                NSLog("🟢 PlayMediaIntentHandler: No results, returning unsupported")
+                print("🟢 [SIRI] PlayMediaIntentHandler: No results, returning unsupported")
+                logger.warning("No search results found")
                 completion([.unsupported()])
             } else if results.count == 1 {
+                NSLog("🟢 PlayMediaIntentHandler: Single result found: \(results[0].title ?? "unknown")")
+                print("🟢 [SIRI] PlayMediaIntentHandler: Single result found: \(results[0].title ?? "unknown")")
+                logger.info("Single result: \(results[0].title ?? "unknown")")
                 completion([.success(with: results[0])])
             } else {
                 // Multiple results - Siri will handle disambiguation
+                NSLog("🟢 PlayMediaIntentHandler: Multiple results, returning disambiguation")
+                print("🟢 [SIRI] PlayMediaIntentHandler: Multiple results, returning disambiguation")
+                logger.info("Multiple results, returning disambiguation")
                 completion([.disambiguation(with: results)])
             }
         }
@@ -122,7 +162,14 @@ final class PlayMediaIntentHandler: NSObject, INPlayMediaIntentHandling {
     
     /// Handle the intent once resolved
     func handle(intent: INPlayMediaIntent, completion: @escaping (INPlayMediaIntentResponse) -> Void) {
+        NSLog("🟢 PlayMediaIntentHandler: handle() called")
+        print("🟢 [SIRI] PlayMediaIntentHandler: handle() called")
+        logger.info("handle() called")
+        
         guard let mediaItems = intent.mediaItems, !mediaItems.isEmpty else {
+            NSLog("🟢 PlayMediaIntentHandler: No media items, returning failure")
+            print("🟢 [SIRI] PlayMediaIntentHandler: No media items, returning failure")
+            logger.error("No media items in intent")
             let response = INPlayMediaIntentResponse(code: .failure, userActivity: nil)
             completion(response)
             return
@@ -151,9 +198,15 @@ final class PlayMediaIntentHandler: NSObject, INPlayMediaIntentHandling {
         
         // Create and save the playback request
         let request = SiriPlaybackRequest(type: requestType, shuffle: shuffle)
+        NSLog("🟢 PlayMediaIntentHandler: Saving playback request: \(request)")
+        print("🟢 [SIRI] PlayMediaIntentHandler: Saving playback request: \(request)")
+        logger.info("Saving playback request: type=\(requestType), shuffle=\(shuffle)")
         requestManager.saveRequest(request)
         
         // Return handleInApp to launch the app
+        NSLog("🟢 PlayMediaIntentHandler: Returning handleInApp response")
+        print("🟢 [SIRI] PlayMediaIntentHandler: Returning handleInApp response")
+        logger.info("Returning handleInApp response")
         let response = INPlayMediaIntentResponse(code: .handleInApp, userActivity: nil)
         completion(response)
     }
