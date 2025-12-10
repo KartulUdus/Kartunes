@@ -297,11 +297,17 @@ final class CarPlayLibraryBuilder {
     
     private func showArtists() async {
         guard let activeServer = activeServer else { return }
+        let serverObjectID = activeServer.objectID
         
         let context = CoreDataStack.shared.viewContext
         let artists: [Artist] = await context.perform {
+            // Fetch the server object in this context to avoid Sendable issues
+            guard let server = try? context.existingObject(with: serverObjectID) as? CDServer else {
+                return []
+            }
+            
             let request: NSFetchRequest<CDArtist> = CDArtist.fetchRequest()
-            request.predicate = NSPredicate(format: "server == %@", activeServer)
+            request.predicate = NSPredicate(format: "server == %@", server)
             request.sortDescriptors = [NSSortDescriptor(key: "sortName", ascending: true)]
             
             guard let cdArtists = try? context.fetch(request) else {

@@ -23,6 +23,7 @@ enum LogCategory: String {
     case storage        = "Storage"
     case httpClient     = "HTTPClient"
     case serverDetect   = "ServerDetection"
+    case siri           = "Siri"
 }
 
 struct Log {

@@ -44,6 +44,10 @@ struct KartunesApp: App {
             .task {
                 await appCoordinator.loadActiveServer()
             }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                // Check for pending Siri requests when app becomes active
+                appCoordinator.checkForPendingSiriRequest()
+            }
         }
     }
 }

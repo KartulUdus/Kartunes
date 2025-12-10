@@ -55,6 +55,10 @@ final class AppCoordinator: ObservableObject {
         carPlaySceneDelegate = delegate
     }
     
+    // Siri
+    private(set) var siriPlaybackCoordinator: SiriPlaybackCoordinator?
+    private let siriRequestManager = SiriPlaybackRequestManager()
+    
     // Static reference for CarPlay delegate access
     static weak var shared: AppCoordinator?
     
@@ -123,6 +127,12 @@ final class AppCoordinator: ObservableObject {
         
         // Set shared reference for CarPlay delegate access
         AppCoordinator.shared = self
+        
+        // Create Siri playback coordinator (will be updated when server is loaded)
+        self.siriPlaybackCoordinator = SiriPlaybackCoordinator(
+            playbackViewModel: playbackViewModel,
+            libraryRepository: libraryRepository
+        )
     }
     
     func loadActiveServer() async {
@@ -270,6 +280,16 @@ final class AppCoordinator: ObservableObject {
         // Update PlaybackViewModel with new repository without losing state
         self.playbackViewModel.updateRepositories(playbackRepository: playbackRepository, libraryRepository: libraryRepository)
         
+        // Update Siri playback coordinator with new repositories
+        self.siriPlaybackCoordinator = SiriPlaybackCoordinator(
+            playbackViewModel: playbackViewModel,
+            libraryRepository: libraryRepository
+        )
+        
+        // Check for pending Siri requests
+        checkForPendingSiriRequest()
+        checkForPendingLikeRequest()
+        
         // Update NowPlayingManager with new repositories
         self.nowPlayingManager?.stop()
         self.nowPlayingManager = NowPlayingManager(
@@ -320,6 +340,79 @@ final class AppCoordinator: ObservableObject {
         ) { [weak self] in
             // Navigation to settings will be handled by the view
             self?.toastMessage = nil
+        }
+    }
+    
+    // MARK: - Siri Integration
+    
+    /// Check for and handle pending Siri playback requests
+    func checkForPendingSiriRequest() {
+        guard let request = siriRequestManager.consumeRequest() else {
+            return
+        }
+        
+        logger.info("Found pending Siri playback request: \(request)")
+        
+        guard let coordinator = siriPlaybackCoordinator else {
+            logger.warning("Siri playback coordinator not available")
+            return
+        }
+        
+        coordinator.handle(request)
+    }
+    
+    /// Check for and handle pending Siri like/unlike requests
+    func checkForPendingLikeRequest() {
+        guard let request = SharedPlaybackState.consumePendingLikeRequest() else {
+            return
+        }
+        
+        logger.info("Found pending Siri like request: trackId=\(request.trackId), isLike=\(request.isLike)")
+        
+        Task { @MainActor in
+            // Find the track in the current queue or fetch it
+            let track: Track?
+            
+            // First, try to find it in the current queue
+            if let queueTrack = playbackViewModel.queue.first(where: { $0.id == request.trackId }) {
+                track = queueTrack
+            } else if let currentTrack = playbackViewModel.currentTrack, currentTrack.id == request.trackId {
+                track = currentTrack
+            } else {
+                // Track not in queue, try to find it via MediaCatalogService
+                let catalogService = MediaCatalogService()
+                track = await catalogService.findTrack(byId: request.trackId)
+            }
+            
+            guard let trackToLike = track else {
+                logger.warning("Siri like: Track \(request.trackId) not found")
+                return
+            }
+            
+            // Check if the track is already in the desired state
+            if trackToLike.isLiked == request.isLike {
+                logger.debug("Siri like: Track already in desired state")
+                return
+            }
+            
+            // Toggle like status (this will handle API call, Core Data update, and playlist update)
+            do {
+                let updatedTrack = try await playbackRepository.toggleLike(track: trackToLike)
+                
+                // Update the current track if it's the one we just liked
+                if playbackViewModel.currentTrack?.id == updatedTrack.id {
+                    playbackViewModel.currentTrack = updatedTrack
+                }
+                
+                // Update the track in the queue if it exists
+                playbackViewModel.queue = playbackViewModel.queue.map { track in
+                    track.id == trackToLike.id ? updatedTrack : track
+                }
+                
+                logger.info("Siri like: Successfully \(request.isLike ? "liked" : "unliked") track \(trackToLike.title)")
+            } catch {
+                logger.error("Siri like: Failed to toggle like status: \(error.localizedDescription)")
+            }
         }
     }
 }

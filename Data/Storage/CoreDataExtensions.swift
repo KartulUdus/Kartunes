@@ -66,6 +66,7 @@ extension CDServer {
 // MARK: - Artist Extensions
 
 extension CDArtist {
+    #if !INTENTS_EXTENSION
     static func upsert(from dto: JellyfinArtistDTO, server: CDServer, apiClient: MediaServerAPIClient, in context: NSManagedObjectContext) -> CDArtist {
         let request: NSFetchRequest<CDArtist> = CDArtist.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@ AND server == %@", dto.id, server)
@@ -89,6 +90,7 @@ extension CDArtist {
         
         return cdArtist
     }
+    #endif
     
     func toDomain() -> Artist {
         Artist(
@@ -102,6 +104,7 @@ extension CDArtist {
 // MARK: - Album Extensions
 
 extension CDAlbum {
+    #if !INTENTS_EXTENSION
     static func upsert(from dto: JellyfinAlbumDTO, artist: CDArtist?, server: CDServer, apiClient: MediaServerAPIClient, in context: NSManagedObjectContext) -> CDAlbum {
         // Find existing or create new
         let request: NSFetchRequest<CDAlbum> = CDAlbum.fetchRequest()
@@ -153,6 +156,7 @@ extension CDAlbum {
         
         return cdAlbum
     }
+    #endif
     
     func toDomain() -> Album {
         Album(
@@ -168,6 +172,7 @@ extension CDAlbum {
 // MARK: - Genre Extensions
 
 extension CDGenre {
+    #if !INTENTS_EXTENSION
     static func upsert(rawName: String, server: CDServer, in context: NSManagedObjectContext) -> CDGenre {
         // Normalize the genre name for lookup
         let normalized = UmbrellaGenres.normalize(rawName)
@@ -187,30 +192,14 @@ extension CDGenre {
         
         return cdGenre
     }
+    #endif
 }
 
 // MARK: - Track Extensions
 
 extension CDTrack {
+    #if !INTENTS_EXTENSION
     private static let logger = Log.make(.storage)
-    func toDomain(serverId: UUID) -> Track {
-        // Map from relationships to flat structure for UI compatibility
-        Track(
-            id: id ?? "",
-            title: title ?? "",
-            albumId: album?.id,
-            albumTitle: album?.title,
-            artistName: artist?.name ?? "Unknown Artist",
-            duration: duration,
-            trackNumber: trackNumber > 0 ? Int(trackNumber) : nil,
-            discNumber: discNumber > 0 ? Int(discNumber) : nil,
-            dateAdded: dateAdded,
-            playCount: Int(playCount),
-            isLiked: isLiked,
-            streamUrl: nil, // Will be built when needed
-            serverId: serverId
-        )
-    }
     
     static func upsert(from dto: JellyfinTrackDTO, album: CDAlbum?, artist: CDArtist?, genres: Set<CDGenre>, server: CDServer, existingTrack: CDTrack? = nil, in context: NSManagedObjectContext) -> CDTrack {
         // Use provided existing track, or fetch if not provided
@@ -303,7 +292,28 @@ extension CDTrack {
         
         return cdTrack
     }
+    #endif
     
+    func toDomain(serverId: UUID) -> Track {
+        // Map from relationships to flat structure for UI compatibility
+        Track(
+            id: id ?? "",
+            title: title ?? "",
+            albumId: album?.id,
+            albumTitle: album?.title,
+            artistName: artist?.name ?? "Unknown Artist",
+            duration: duration,
+            trackNumber: trackNumber > 0 ? Int(trackNumber) : nil,
+            discNumber: discNumber > 0 ? Int(discNumber) : nil,
+            dateAdded: dateAdded,
+            playCount: Int(playCount),
+            isLiked: isLiked,
+            streamUrl: nil, // Will be built when needed
+            serverId: serverId
+        )
+    }
+    
+    #if !INTENTS_EXTENSION
     static func findBy(id: String, server: CDServer, in context: NSManagedObjectContext) throws -> CDTrack? {
         let request: NSFetchRequest<CDTrack> = CDTrack.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@ AND server == %@", id, server)
@@ -315,23 +325,6 @@ extension CDTrack {
             Self.logger.debug("CDTrack.findBy - Track DOES NOT EXIST - ID: \(id)")
         }
         return result
-    }
-    
-    static func fetchAll(server: CDServer, in context: NSManagedObjectContext) throws -> [CDTrack] {
-        let request: NSFetchRequest<CDTrack> = CDTrack.fetchRequest()
-        request.predicate = NSPredicate(format: "server == %@", server)
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        return try context.fetch(request)
-    }
-    
-    static func fetchByAlbum(_ album: CDAlbum, in context: NSManagedObjectContext) throws -> [CDTrack] {
-        let request: NSFetchRequest<CDTrack> = CDTrack.fetchRequest()
-        request.predicate = NSPredicate(format: "album == %@", album)
-        request.sortDescriptors = [
-            NSSortDescriptor(key: "discNumber", ascending: true),
-            NSSortDescriptor(key: "trackNumber", ascending: true)
-        ]
-        return try context.fetch(request)
     }
     
     /// Deletes a track by ID from Core Data
@@ -348,5 +341,23 @@ extension CDTrack {
             context.delete(track)
             try context.save()
         }
+    }
+    #endif
+    
+    static func fetchAll(server: CDServer, in context: NSManagedObjectContext) throws -> [CDTrack] {
+        let request: NSFetchRequest<CDTrack> = CDTrack.fetchRequest()
+        request.predicate = NSPredicate(format: "server == %@", server)
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        return try context.fetch(request)
+    }
+    
+    static func fetchByAlbum(_ album: CDAlbum, in context: NSManagedObjectContext) throws -> [CDTrack] {
+        let request: NSFetchRequest<CDTrack> = CDTrack.fetchRequest()
+        request.predicate = NSPredicate(format: "album == %@", album)
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "discNumber", ascending: true),
+            NSSortDescriptor(key: "trackNumber", ascending: true)
+        ]
+        return try context.fetch(request)
     }
 }

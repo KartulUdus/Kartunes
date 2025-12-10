@@ -481,6 +481,11 @@ final class PlaybackViewModel: ObservableObject {
         currentTrack = await playbackRepository.getCurrentTrack()
         queue = await playbackRepository.getQueue()
         
+        // Store current track in shared state for Siri extension
+        if let track = currentTrack {
+            SharedPlaybackState.storeCurrentTrack(track)
+        }
+        
         // Log when track changes and try to get album art
         if let track = currentTrack, track.id != previousTrackId {
             let trackId = track.id
