@@ -3,7 +3,6 @@ import CarPlay
 import MediaPlayer
 import Combine
 import UIKit
-@preconcurrency import CoreData
 
 @MainActor
 final class CarPlayNowPlayingCoordinator {
@@ -11,7 +10,6 @@ final class CarPlayNowPlayingCoordinator {
     
     private var playbackViewModel: PlaybackViewModel
     private var playbackRepository: PlaybackRepository
-    private var libraryRepository: LibraryRepository?
     private var cancellables = Set<AnyCancellable>()
     
     private var skipAhead10Button: CPNowPlayingImageButton?
@@ -22,23 +20,19 @@ final class CarPlayNowPlayingCoordinator {
     
     init(
         playbackViewModel: PlaybackViewModel,
-        playbackRepository: PlaybackRepository,
-        libraryRepository: LibraryRepository? = nil
+        playbackRepository: PlaybackRepository
     ) {
         self.playbackViewModel = playbackViewModel
         self.playbackRepository = playbackRepository
-        self.libraryRepository = libraryRepository
     }
-    
+
     func updateRepositories(
         playbackViewModel: PlaybackViewModel,
-        playbackRepository: PlaybackRepository,
-        libraryRepository: LibraryRepository? = nil
+        playbackRepository: PlaybackRepository
     ) {
         stop()
         self.playbackViewModel = playbackViewModel
         self.playbackRepository = playbackRepository
-        self.libraryRepository = libraryRepository
         start()
     }
     
@@ -435,7 +429,7 @@ final class CarPlayNowPlayingCoordinator {
         if let image = UIImage(systemName: "heart") {
             heartButton = CPNowPlayingImageButton(image: image) { [weak self] _ in
                 Task { @MainActor [weak self] in
-                    await self?.toggleFavourite()
+                    self?.playbackViewModel.toggleLike()
                 }
             }
         }
@@ -485,100 +479,14 @@ final class CarPlayNowPlayingCoordinator {
     private func updateHeartButton(for track: Track?) {
         let imageName = track?.isLiked == true ? "heart.fill" : "heart"
         guard let image = UIImage(systemName: imageName) else { return }
-        
+
         heartButton = CPNowPlayingImageButton(image: image) { [weak self] _ in
             Task { @MainActor [weak self] in
-                await self?.toggleFavourite()
+                self?.playbackViewModel.toggleLike()
             }
         }
-        
+
         updateNowPlayingButtons()
-    }
-    
-    private func toggleFavourite() async {
-        guard let track = playbackViewModel.currentTrack else { return }
-        
-        // Optimistic update
-        let newLikedState = !track.isLiked
-        FavoritesStore.shared.setLiked(track.id, newLikedState)
-        
-        // Create updated track with new liked state
-        let updatedTrack = Track(
-            id: track.id,
-            title: track.title,
-            albumId: track.albumId,
-            albumTitle: track.albumTitle,
-            artistName: track.artistName,
-            duration: track.duration,
-            trackNumber: track.trackNumber,
-            discNumber: track.discNumber,
-            dateAdded: track.dateAdded,
-            playCount: track.playCount,
-            isLiked: newLikedState,
-            streamUrl: track.streamUrl,
-            serverId: track.serverId
-        )
-        playbackViewModel.currentTrack = updatedTrack
-        
-        do {
-            let serverUpdatedTrack = try await playbackRepository.toggleLike(track: track)
-            
-            // Reconcile with server state
-            await MainActor.run {
-                FavoritesStore.shared.updateAfterAPICall(trackId: serverUpdatedTrack.id, isLiked: serverUpdatedTrack.isLiked, serverId: serverUpdatedTrack.serverId)
-                
-                if playbackViewModel.currentTrack?.id == serverUpdatedTrack.id {
-                    playbackViewModel.currentTrack = serverUpdatedTrack
-                }
-            }
-            
-            await updateLikedPlaylist(track: serverUpdatedTrack, isNowLiked: serverUpdatedTrack.isLiked)
-        } catch {
-            logger.error("Failed to toggle favourite: \(error.localizedDescription)")
-            // Revert optimistic update
-            await MainActor.run {
-                FavoritesStore.shared.setLiked(track.id, !newLikedState)
-                // Revert to original track state
-                let revertedTrack = Track(
-                    id: track.id,
-                    title: track.title,
-                    albumId: track.albumId,
-                    albumTitle: track.albumTitle,
-                    artistName: track.artistName,
-                    duration: track.duration,
-                    trackNumber: track.trackNumber,
-                    discNumber: track.discNumber,
-                    dateAdded: track.dateAdded,
-                    playCount: track.playCount,
-                    isLiked: !newLikedState,
-                    streamUrl: track.streamUrl,
-                    serverId: track.serverId
-                )
-                playbackViewModel.currentTrack = revertedTrack
-            }
-        }
-    }
-    
-    private func updateLikedPlaylist(track: Track, isNowLiked: Bool) async {
-        guard let libraryRepository = libraryRepository else {
-            return
-        }
-        
-        let manager = LikedPlaylistManager(
-            libraryRepository: libraryRepository,
-            coreDataStack: CoreDataStack.shared,
-            serverId: track.serverId
-        )
-        
-        do {
-            if isNowLiked {
-                try await manager.addTrackToLikedPlaylist(trackId: track.id)
-            } else {
-                try await manager.removeTrackFromLikedPlaylist(trackId: track.id)
-            }
-        } catch {
-            logger.warning("Failed to update liked playlist: \(error.localizedDescription)")
-        }
     }
     
     private func skipAhead10Percent() async {
@@ -605,5 +513,3 @@ final class CarPlayNowPlayingCoordinator {
         )
     }
 }
-
-

@@ -17,6 +17,7 @@ final class WatchConnectivityService: NSObject, ObservableObject {
     private let coreDataStack: CoreDataStack?
     private var cancellables = Set<AnyCancellable>()
     private var lastSentState: WatchStateMessage?
+    private let positionDeltaThreshold: TimeInterval = 5
     
     init(
         playbackViewModel: PlaybackViewModel,
@@ -110,14 +111,29 @@ final class WatchConnectivityService: NSObject, ObservableObject {
         
         // Only send if state actually changed (to avoid unnecessary updates)
         // Always send if track changed (for album art updates)
-        if let lastState = lastSentState,
-           lastState.track?.id == stateMessage.track?.id,
-           lastState.playbackState == stateMessage.playbackState,
-           abs(lastState.position - stateMessage.position) < 1.0,
-           lastState.track?.albumArtURL == stateMessage.track?.albumArtURL {
-            return
+        if let lastState = lastSentState {
+            let trackSummaryChanged: Bool = {
+                switch (lastState.track, stateMessage.track) {
+                case (.none, .none):
+                    return false
+                case (.some(let previous), .some(let current)):
+                    return previous.id != current.id
+                        || previous.title != current.title
+                        || previous.artist != current.artist
+                        || previous.albumArtURL != current.albumArtURL
+                        || previous.isFavourite != current.isFavourite
+                default:
+                    return true
+                }
+            }()
+
+            let playbackUnchanged = lastState.playbackState == stateMessage.playbackState
+            let positionDelta = abs(lastState.position - stateMessage.position)
+            if !trackSummaryChanged && playbackUnchanged && positionDelta < positionDeltaThreshold {
+                return
+            }
         }
-        
+
         lastSentState = stateMessage
         
         do {
@@ -279,4 +295,3 @@ extension WatchConnectivityService: WCSessionDelegate {
         }
     }
 }
-

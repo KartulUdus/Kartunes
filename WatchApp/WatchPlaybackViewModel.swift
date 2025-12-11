@@ -12,7 +12,7 @@ final class WatchPlaybackViewModel: ObservableObject {
     @Published var hasTrack: Bool = false
     @Published var isConnected: Bool = false
     @Published var albumArtURL: URL?
-    @Published var currentPosition: TimeInterval = 0
+    private var currentPosition: TimeInterval = 0
     
     private var currentTrackId: String?
     
@@ -59,36 +59,58 @@ final class WatchPlaybackViewModel: ObservableObject {
             // Check if track changed (by ID) to force album art update
             let trackChanged = track.id != (currentTrackId ?? "")
             currentTrackId = track.id
-            
-            trackTitle = track.title
-            trackArtist = track.artist
-            isFavourite = track.isFavourite
-            hasTrack = true
-            
+
+            if trackChanged || trackTitle != track.title {
+                trackTitle = track.title
+            }
+
+            if trackChanged || trackArtist != track.artist {
+                trackArtist = track.artist
+            }
+
+            if trackChanged || isFavourite != track.isFavourite {
+                isFavourite = track.isFavourite
+            }
+
+            if !hasTrack {
+                hasTrack = true
+            }
+
             // Always update album art URL when track changes or URL is different
             let newAlbumArtURL = track.albumArtURL.flatMap { URL(string: $0) }
             if trackChanged || albumArtURL != newAlbumArtURL {
                 albumArtURL = newAlbumArtURL
             }
         } else {
-            trackTitle = ""
-            trackArtist = ""
-            isFavourite = false
-            hasTrack = false
-            albumArtURL = nil
+            if !trackTitle.isEmpty {
+                trackTitle = ""
+            }
+            if !trackArtist.isEmpty {
+                trackArtist = ""
+            }
+            if isFavourite {
+                isFavourite = false
+            }
+            if hasTrack {
+                hasTrack = false
+            }
+            if albumArtURL != nil {
+                albumArtURL = nil
+            }
             currentTrackId = nil
         }
-        
+
         // Always update playback state
         let newIsPlaying = state.playbackState == .playing
         if isPlaying != newIsPlaying {
             isPlaying = newIsPlaying
         }
-        
-        // Update current position
+
+        // Update current position without triggering UI work
         currentPosition = state.position
-        
-        isConnected = true
+
+        if !isConnected {
+            isConnected = true
+        }
     }
 }
-

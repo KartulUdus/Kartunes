@@ -142,14 +142,12 @@ struct WatchNowPlayingView: View {
                 .padding(.bottom, 8)
             }
         }
-        .onAppear {
-            // Request state when view appears
-            // Add a small delay to ensure session is activated
-            Task {
-                // Try immediately
-                viewModel.session.requestState()
-                // Also try after a short delay in case session wasn't ready
-                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+        .task {
+            // Request state as soon as the view is visible
+            viewModel.session.requestState()
+            // Also try after a short delay in case session wasn't ready; this task cancels automatically on disappear
+            try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+            if !Task.isCancelled {
                 viewModel.session.requestState()
             }
         }
@@ -159,4 +157,3 @@ struct WatchNowPlayingView: View {
 #Preview {
     WatchNowPlayingView()
 }
-

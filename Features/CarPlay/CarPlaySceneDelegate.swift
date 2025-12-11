@@ -49,8 +49,7 @@ class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
         
         nowPlayingCoordinator?.updateRepositories(
             playbackViewModel: playbackViewModel,
-            playbackRepository: playbackRepository,
-            libraryRepository: libraryRepository
+            playbackRepository: playbackRepository
         )
         
         homeBuilder?.updateRepositories(
@@ -130,8 +129,7 @@ class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
         
         nowPlayingCoordinator = CarPlayNowPlayingCoordinator(
             playbackViewModel: playbackViewModel,
-            playbackRepository: playbackRepository,
-            libraryRepository: libraryRepository
+            playbackRepository: playbackRepository
         )
         
         homeBuilder = CarPlayHomeBuilder(

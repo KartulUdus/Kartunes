@@ -34,6 +34,8 @@ final class PlaybackViewModel: ObservableObject {
     private var trackFinishedObserver: NSObjectProtocol?
     private var isSeeking = false // Flag to prevent time updates during seek
     private var seekGenerationId: Int = 0 // Track seek operations to prevent late completions
+    private var audioSessionInterruptionObserver: NSObjectProtocol?
+    private var wasPlayingBeforeInterruption = false
     
     // Playback Queue
     private var activeQueue: PlaybackQueue?
@@ -53,6 +55,7 @@ final class PlaybackViewModel: ObservableObject {
         self.libraryRepository = libraryRepository
         startTimeObserver()
         setupTrackFinishedObserver()
+        setupAudioSessionObservers()
     }
     
     func albumArtURL(for albumId: String) -> URL? {
@@ -187,6 +190,44 @@ final class PlaybackViewModel: ObservableObject {
         // Remove notification observer
         if let observer = trackFinishedObserver {
             NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = audioSessionInterruptionObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+
+    private func setupAudioSessionObservers() {
+        audioSessionInterruptionObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            self?.handleAudioSessionInterruption(notification)
+        }
+    }
+
+    private func handleAudioSessionInterruption(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+            return
+        }
+
+        switch type {
+        case .began:
+            wasPlayingBeforeInterruption = isPlaying
+            if isPlaying {
+                isPlaying = false
+            }
+        case .ended:
+            let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            if wasPlayingBeforeInterruption && options.contains(.shouldResume) {
+                resume()
+            }
+            wasPlayingBeforeInterruption = false
+        @unknown default:
+            break
         }
     }
     
@@ -1106,4 +1147,3 @@ final class PlaybackViewModel: ObservableObject {
         self.libraryRepository = libraryRepository
     }
 }
-
