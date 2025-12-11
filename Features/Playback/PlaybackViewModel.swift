@@ -202,7 +202,9 @@ final class PlaybackViewModel: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] notification in
-            self?.handleAudioSessionInterruption(notification)
+            Task { @MainActor [weak self] in
+                self?.handleAudioSessionInterruption(notification)
+            }
         }
     }
 
