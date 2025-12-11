@@ -131,11 +131,7 @@ struct LoginView: View {
                 }
                 urlsToTry = [url]
             } else {
-                // No protocol provided - determine order based on host
-                let isLocalhost = urlString.lowercased().contains("localhost") || 
-                                 urlString.contains("127.0.0.1") ||
-                                 urlString.contains("::1")
-                
+                // No protocol provided - try both HTTP and HTTPS automatically
                 guard let httpURL = URL(string: "http://\(urlString)"),
                       let httpsURL = URL(string: "https://\(urlString)") else {
                     await MainActor.run {
@@ -146,13 +142,7 @@ struct LoginView: View {
                     return
                 }
                 
-                // For localhost, try HTTP first (most local servers don't have SSL)
-                // For remote servers, try HTTPS first (more secure, common for production)
-                if isLocalhost {
-                    urlsToTry = [httpURL, httpsURL]
-                } else {
-                    urlsToTry = [httpsURL, httpURL]
-                }
+                urlsToTry = [httpURL, httpsURL]
             }
             
             // Detect server type by trying each URL
@@ -452,4 +442,3 @@ struct LoginView: View {
         }
     }
 }
-

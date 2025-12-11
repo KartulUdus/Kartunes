@@ -48,47 +48,80 @@ enum ServerDetectionService {
             throw ServerDetectionError.invalidURL
         }
         
-        // Try to probe the server
-        // 1. First try as-is (for Jellyfin or Emby with /emby already in path)
-        var firstProbeError: Error?
-        do {
-            let result = try await probe(baseURL: normalizedBase)
-            return result
-        } catch let caughtError {
-            firstProbeError = caughtError
-            // If ProductName was nil or unrecognized, try emby path
-            if case ServerDetectionError.unknownServerType = caughtError {
-                Self.logger.debug("First probe succeeded but couldn't determine type, trying /emby path")
+        var candidateBases: [URL] = []
+        var seenCandidates = Set<URL>()
+        func appendCandidate(_ url: URL?) {
+            guard let url = url, !seenCandidates.contains(url) else { return }
+            candidateBases.append(url)
+            seenCandidates.insert(url)
+        }
+
+        appendCandidate(normalizedBase)
+
+        if let scheme = components.scheme?.lowercased() {
+            switch scheme {
+            case "https":
+                var httpComponents = components
+                httpComponents.scheme = "http"
+                appendCandidate(httpComponents.url)
+            case "http":
+                var httpsComponents = components
+                httpsComponents.scheme = "https"
+                appendCandidate(httpsComponents.url)
+            default:
+                break
             }
+        } else {
+            var httpComponents = components
+            httpComponents.scheme = "http"
+            appendCandidate(httpComponents.url)
+            var httpsComponents = components
+            httpsComponents.scheme = "https"
+            appendCandidate(httpsComponents.url)
         }
-        
-        // 2. Try with /emby appended (for Emby servers without /emby in path)
-        var embyComponents = components
-        if !embyComponents.path.lowercased().contains("/emby") {
-            let currentPath = embyComponents.path.isEmpty ? "" : embyComponents.path
-            embyComponents.path = currentPath + (currentPath.isEmpty ? "/emby" : "/emby")
-        }
-        
-        if let embyBase = embyComponents.url {
+
+        var lastError: Error = ServerDetectionError.noCompatibleServer
+        for base in candidateBases {
             do {
-                let result = try await probe(baseURL: embyBase)
+                let result = try await probeWithEmbyFallback(baseURL: base)
                 return result
             } catch {
-                // If emby path also fails, use the first error
-                if let firstError = firstProbeError {
-                    throw firstError
-                }
-                throw error
+                lastError = error
+                Self.logger.warning("Detection attempt failed for \(base.absoluteString): \(error.localizedDescription)")
             }
         }
-        
-        // If both attempts failed, throw error
-        if let firstError = firstProbeError {
-            throw firstError
-        }
-        throw ServerDetectionError.noCompatibleServer
+
+        throw lastError
     }
     
+    private static func probeWithEmbyFallback(baseURL: URL) async throws -> ServerDetectionResult {
+        // Try the provided base first
+        do {
+            return try await probe(baseURL: baseURL)
+        } catch {
+            // If the failure was due to unknown product, try /emby before surfacing the error
+            if case ServerDetectionError.unknownServerType = error {
+                Self.logger.debug("Probe succeeded but type unknown for \(baseURL.absoluteString), trying /emby path")
+            }
+            // Append /emby and retry if not already present
+            if var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false),
+               !components.path.lowercased().contains("/emby") {
+                let currentPath = components.path
+                if currentPath.isEmpty {
+                    components.path = "/emby"
+                } else if currentPath.hasSuffix("/") {
+                    components.path = currentPath + "emby"
+                } else {
+                    components.path = currentPath + "/emby"
+                }
+                if let embyURL = components.url {
+                    return try await probe(baseURL: embyURL)
+                }
+            }
+            throw error
+        }
+    }
+
     /// Probes a specific base URL for server information
     private static func probe(baseURL: URL) async throws -> ServerDetectionResult {
         let probeURL = baseURL.appendingPathComponent("System/Info/Public")
@@ -199,4 +232,3 @@ enum ServerDetectionError: LocalizedError {
         }
     }
 }
-
